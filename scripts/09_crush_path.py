@@ -15,8 +15,9 @@ from pathlib import Path
 
 import pandas as pd
 
-from crush.analysis.crush import path_table, summarize_path
-from crush.config import PROCESSED_DIR, RAW_DIR, RESULTS_DIR
+from crush.analysis.crush import control_slices, path_table, summarize_path
+from crush.config import CONTROL_DIR, PROCESSED_DIR, RAW_DIR, RESULTS_DIR
+from crush.data.control import event_days, load_control
 from crush.data.extra_days import load_extra_days
 from crush.data.source import event_dir, load_event
 from crush.market.rates import DEFAULT_RATE
@@ -27,6 +28,7 @@ def main() -> int:
     ap.add_argument("--source", default="theta")
     ap.add_argument("--root", default=str(RAW_DIR))
     ap.add_argument("--r", type=float, default=DEFAULT_RATE)
+    ap.add_argument("--control", default="SPY", help="activo de control para descontar el mercado (se usa si ya está descargado)")
     ap.add_argument("--min-days-left", type=int, default=3, help="descarta vencimientos con menos días hábiles que estos")
     args = ap.parse_args()
 
@@ -44,7 +46,11 @@ def main() -> int:
         if not extra:
             print(f"[omitido] {folder.name}: sin días extra (corre scripts/08_extra_days.py)")
             continue
-        tables.append(path_table(load_event(folder), extra, row, args.r, min_days_left=args.min_days_left))
+        data = load_event(folder)
+        ctrl = control_slices(load_control(CONTROL_DIR, args.source, args.control, event_days(data.meta)), args.r)
+        if not ctrl:
+            print(f"[aviso] {folder.name}: sin datos de {args.control}; las columnas ajustadas quedan vacías (scripts/10_control.py)")
+        tables.append(path_table(data, extra, row, args.r, min_days_left=args.min_days_left, control=ctrl))
     if not tables:
         return 1
     full = pd.concat(tables, ignore_index=True)
