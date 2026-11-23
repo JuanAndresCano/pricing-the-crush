@@ -27,14 +27,20 @@ def main() -> int:
     ap.add_argument("--source", default="massive", choices=["massive"])
     ap.add_argument("--limit", type=int, default=None, help="solo los primeros N eventos")
     ap.add_argument("--force", action="store_true", help="volver a descargar aunque ya exista")
+    ap.add_argument("--include-unverified", action="store_true", help="incluir filas con verified distinto de true")
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--n-near", type=int, default=2)
     ap.add_argument("--far-min-days", type=int, default=21)
     args = ap.parse_args()
 
     events = load_events(args.events)
+    if not args.include_unverified:
+        ok_rows = events["verified"].astype(str).str.strip().str.lower().isin(["true", "1", "yes", "si", "sí"])
+        if (~ok_rows).any():
+            print(f"Se omiten {int((~ok_rows).sum())} filas con verified distinto de true (usa --include-unverified para incluirlas).")
+        events = events[ok_rows]
     if events.empty:
-        print(f"{args.events} no tiene eventos. Agrega filas (ticker, announcement_date, timing) y vuelve a correr.")
+        print(f"{args.events} no tiene eventos verificados. Completa filas (ticker, announcement_date, timing, verified=true) y vuelve a correr.")
         return 1
     if args.limit:
         events = events.head(args.limit)
