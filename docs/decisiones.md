@@ -128,3 +128,23 @@ Se corre con `python scripts/09_crush_path.py` después de la calibración y de 
 **Prueba con datos reales (no es resultado del estudio).** AAPL con el anuncio supuesto del 2026-11-02: beta ≈ 0,23 y alpha ≈ -0,02 con solo 4 observaciones de un evento, así que solo dan el orden de magnitud. Tras descontar el mercado, la desviación de `g` respecto del modelo pasa de entre -0,10 y +0,09 a entre -0,09 y +0,03; el ruido baja pero sigue ahí con un evento. El 2026-11-03 fue día de elecciones de medio período en EE. UU., lo que podría explicar la caída de SPY al día siguiente; es una hipótesis sin verificar.
 
 **Límites.** El beta se supone constante y común a todas las acciones; SPY no es sectorial (para tecnológicas, un ETF como QQQ podría ser un mejor control). Con 30 eventos el beta se estima con más datos, pero el contraste final (¿`alpha` distinto de cero?) hay que hacerlo agrupando por fecha de anuncio, igual que en las demás pruebas, y todavía no está implementado.
+
+
+## Decisión 16: contraste final de crush gradual (Pregunta 2)
+
+**Pregunta.** Después del día 0, ¿la volatilidad sigue bajando más de lo que explican el mercado y el modelo? Es la prueba que separa "el crush es instantáneo" (el modelo con salto de evento) de "es gradual" (reversión de la varianza, u otro mecanismo).
+
+**Residuo.** Para cada modelo, `e = ln g_obs - beta * ln g_spy - ln g_modelo`, con `g = IV(k) / IV(0)` (ver decisiones 14 y 15). `e < 0` significa que la volatilidad bajó más de lo que explican el mercado y el modelo; `e > 0`, que bajó menos.
+
+**Contrastes**, ambos agrupados por fecha de anuncio porque los eventos de un mismo día comparten el mercado (`analysis/gradual.py`, `scripts/11_gradual_test.py`):
+
+1. Regresión `ln g_obs - ln g_modelo = alpha + beta ln g_spy` con errores estándar robustos por conglomerado (CR1) y t de G - 1 grados de libertad. `alpha` es la caída extra promedio ya sin el movimiento del mercado. Pide al menos 3 fechas.
+2. Wilcoxon de signos y rangos sobre el promedio de `e` por fecha, para todos los horizontes y por separado para k = 1, 2, 4. Pide al menos 6 fechas. Usa el beta de la regresión, de los mismos datos, por lo que es algo optimista; si no hay beta estimable se contrasta con beta = 0 (sin descontar el mercado) y la columna `beta_used` lo deja a la vista.
+
+**Pruebas.** Con tablas sintéticas el contraste: recupera `beta` y `alpha` conocidos; no encuentra efecto cuando no lo hay; detecta un `alpha` de -3 % con 12 fechas; no da p-valor con pocas fechas; el error de conglomerado resulta mayor que el ingenuo cuando los eventos de un día comparten un shock; y si el modelo ya espera la caída (Bates con reversión), el residuo es cero.
+
+**Con datos reales.** Con el único evento de prueba (AAPL, 2026-11-02, fecha sin verificar) hay una sola fecha: no se puede estimar el beta ni dar p-valor, y el contraste lo reporta como `nan` en vez de inventar nada. Los residuos sin descontar el mercado (mediana de -0,08 a +1 día y -0,11 a +4 días) son del tamaño del ruido de mercado ya visto, no una conclusión.
+
+**Qué falta para responder la Pregunta 2.** Unos 30 eventos con fechas verificadas, sus días extra y el control SPY. Con eso corren, en orden: `03_calibrate`, `08_extra_days`, `10_control`, `09_crush_path` y `11_gradual_test`. Si `alpha` no es distinto de cero y los residuos de Merton y Bates son parecidos, el crush es instantáneo a este nivel de datos; si `alpha < 0` de forma robusta, hay una parte gradual que ni el mercado ni el salto de evento explican, y es la que Bates solo podría capturar con reversión de varianza.
+
+**Límites.** Beta constante y común a todas las empresas; SPY como control (QQQ podría servir mejor para las tecnológicas); solo tres horizontes; una sola foto de fin de día; y con 30 eventos concentrados en pocas fechas la potencia será baja.
