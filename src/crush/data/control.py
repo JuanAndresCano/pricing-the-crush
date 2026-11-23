@@ -7,8 +7,10 @@ de SPY. Los días se comparten entre eventos: un día ya guardado no se vuelve a
     <raíz>/<fuente>/<símbolo>/<día>.parquet    cadena (mismo formato que pre.parquet)
     <raíz>/<fuente>/<símbolo>/<día>.json       precio del activo y tasa de ese día
 
-Para el ATM interesan pocos strikes, así que la fuente de control se crea con `strike_range` (ThetaSource) y solo
-baja unos 30 strikes alrededor del precio.
+Para el ATM interesan pocos strikes, así que la fuente de control se crea con `strike_range` (ThetaSource). Ojo:
+ThetaData centra esa ventana en el precio del día anterior, no en el cierre del día pedido; si el activo se mueve más
+que la ventana, el dinero queda afuera. Por eso se usa una ventana ancha y `ensure_control_day` rechaza (y no guarda)
+cualquier cadena que no cubra el precio de cierre.
 """
 
 from __future__ import annotations
@@ -33,6 +35,12 @@ def event_days(meta: dict) -> list[str]:
     return days
 
 
+def covers_spot(df: pd.DataFrame, spot: float, tol: float = 0.015) -> bool:
+    """True si la cadena tiene strikes a ambos lados del precio y uno a menos de `tol` (relativo) de él."""
+    k = df["strike"].astype(float)
+    return bool((k < spot).any() and (k > spot).any() and (k - spot).abs().min() <= tol * spot)
+
+
 def ensure_control_day(src: ChainSource, symbol: str, day, root: Path, force: bool = False) -> Path | None:
     """Guarda la cadena de control de un día si no está. Devuelve la ruta del parquet, o None si no hay datos."""
     day = str(pd.Timestamp(day).date())
@@ -49,8 +57,11 @@ def ensure_control_day(src: ChainSource, symbol: str, day, root: Path, force: bo
     sel["days_to_expiry"] = [trading_days_between(day, e) for e in sel["expiry"]]
     sel = sel[sel["days_to_expiry"] > 0].reset_index(drop=True)
     quotes = [src.last_quote(t, day) for t in sel["ticker"]]
+    frame = _chain_frame(sel, quotes, day, symbol)
+    if not covers_spot(frame, spot):
+        return None  # la ventana de strikes no cubre el cierre: mejor no guardar nada que guardar una cadena sin ATM
     d.mkdir(parents=True, exist_ok=True)
-    _chain_frame(sel, quotes, day, symbol).to_parquet(f, index=False)
+    frame.to_parquet(f, index=False)
     info = {"spot": spot}
     rate = getattr(src, "rate", None)
     r = rate(day) if rate else None

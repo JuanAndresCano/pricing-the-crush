@@ -113,3 +113,18 @@ Las pruebas con mercados simulados lo distinguen: si el mercado lo generó Merto
 **Límite principal.** El `g_obs` de un solo evento queda dominado por la volatilidad general del mercado, que cambia del orden de ±10 % en pocos días. Con 30 eventos hay que promediar entre ellos, y para aislar el efecto del anuncio conviene **descontar el movimiento del mercado** (por ejemplo, con la volatilidad implícita de una acción sin anuncio ese día, o de un ETF como SPY, cuyas opciones también entran en el plan gratis). Eso queda como la mejora siguiente; no está implementado.
 
 Se corre con `python scripts/09_crush_path.py` después de la calibración y de `08_extra_days.py`.
+
+
+## Decisión 15: control de mercado con SPY para la trayectoria del crush
+
+**Por qué.** La volatilidad de una acción se mueve día a día por la del mercado entero, y la decisión 14 mostró que ese ruido (±10 % en pocos días) tapa cualquier efecto del anuncio. Se descuenta con la volatilidad implícita ATM de SPY sobre el vencimiento más cercano en plazo al de la acción (el mismo vencimiento de SPY en todos los días del evento).
+
+**Descarga.** `scripts/10_control.py` guarda la cadena de SPY de cada día que usa un evento, en `data/control/theta/SPY/`, compartida entre eventos (un día ya guardado no se pide de nuevo). Cuesta unos 3 pedidos por día nuevo.
+
+**Error encontrado y corregido.** Con `strike_range = 15`, el 2026-11-05 la cadena de SPY salió sin strikes cerca del dinero: ThetaData centra la ventana en el precio del día anterior, no en el cierre del día pedido, y SPY se había movido más de 15 puntos. Sin el control habría pasado sin avisar (casi todos los vencimientos quedaban sin datos). Ahora: ventana por defecto de 60 strikes y `ensure_control_day` rechaza, y no guarda, cualquier cadena que no cubra el precio de cierre (`covers_spot`). Ese mismo riesgo no afecta a las cadenas de los eventos, que se piden sin `strike_range`.
+
+**Beta.** Suponer que la acción reacciona igual que el mercado (beta 1) sobrecorrige. Con el evento de prueba de AAPL, SPY cambió su volatilidad del vencimiento de diciembre entre 13 % y 22 % en cinco días (16,3 % el 3-nov, 13,1 % el 4, 21,9 % el 5, 15,2 % el 9), y la de AAPL se movió mucho menos. `estimate_control_beta` estima la sensibilidad con la regresión `ln g_obs = alpha + beta ln g_spy`; `alpha` es la caída promedio que queda después de descontar el mercado (negativa significa que el crush continúa tras el día 0). `path_table(..., control_beta=...)` la usa; `scripts/09_crush_path.py` la estima con todos los eventos si no se le pasa `--beta`.
+
+**Prueba con datos reales (no es resultado del estudio).** AAPL con el anuncio supuesto del 2026-11-02: beta ≈ 0,23 y alpha ≈ -0,02 con solo 4 observaciones de un evento, así que solo dan el orden de magnitud. Tras descontar el mercado, la desviación de `g` respecto del modelo pasa de entre -0,10 y +0,09 a entre -0,09 y +0,03; el ruido baja pero sigue ahí con un evento. El 2026-11-03 fue día de elecciones de medio período en EE. UU., lo que podría explicar la caída de SPY al día siguiente; es una hipótesis sin verificar.
+
+**Límites.** El beta se supone constante y común a todas las acciones; SPY no es sectorial (para tecnológicas, un ETF como QQQ podría ser un mejor control). Con 30 eventos el beta se estima con más datos, pero el contraste final (¿`alpha` distinto de cero?) hay que hacerlo agrupando por fecha de anuncio, igual que en las demás pruebas, y todavía no está implementado.

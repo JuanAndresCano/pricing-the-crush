@@ -116,7 +116,8 @@ def _control_ratios(control, pre_day: str, day0: str, day_k: str, T0: float) -> 
 
 
 def path_table(
-    data, extra: dict, cal_row, r: float, params: CleanParams | None = None, min_days_left: int = 3, control: dict | None = None
+    data, extra: dict, cal_row, r: float, params: CleanParams | None = None, min_days_left: int = 3, control: dict | None = None,
+    control_beta: float = 1.0,
 ) -> pd.DataFrame:
     """Una fila por vencimiento, día posterior y modelo.
 
@@ -129,9 +130,10 @@ def path_table(
                          modelo ya espera (en Bates, por la reversión de la varianza hacia theta).
 
     Con `control` (`{día: {vencimiento: Slice}}` de un activo como SPY) se descuenta el movimiento general del
-    mercado, con beta 1 en volatilidad: `g_spy = IV_spy(k) / IV_spy(0)` sobre el vencimiento de SPY más parecido,
-    `g_obs_adj = g_obs / g_spy`, `g_gap_adj = g_obs_adj - g_model` y `cr_obs_adj = cr_obs / (IV_spy(k) / IV_spy(previo))`.
-    Sin control, o si falta algún día, esas columnas quedan en nan.
+    mercado: `g_spy = IV_spy(k) / IV_spy(0)` sobre el vencimiento de SPY más parecido, `g_obs_adj = g_obs / g_spy^beta`,
+    `g_gap_adj = g_obs_adj - g_model` y `cr_obs_adj = cr_obs / (IV_spy(k) / IV_spy(previo))^beta`. Con beta = 1 (por
+    defecto) se supone que la acción reacciona igual que el mercado; en datos reales suele reaccionar menos, así que
+    conviene pasar el beta que da `estimate_control_beta`. Sin control, o si falta algún día, esas columnas quedan en nan.
     """
     m = data.meta
     r_pre, r_post = event_rates(m, r)
@@ -159,8 +161,8 @@ def path_table(
                     "ticker": m["ticker"], "announcement_date": m["announcement_date"], "expiry": exp, "k": k, "days_left": left, "model": tag,
                     "cr_obs": s.atm_iv / pre[exp].atm_iv, "cr_model": res["cr_model"], "g_obs": g_obs, "g_model": g_model,
                     "g_gap": g_obs - g_model, "iv_obs": s.atm_iv, "iv_model": res["iv_post_model"],
-                    "g_spy": g_spy, "g_obs_adj": g_obs / g_spy, "g_gap_adj": g_obs / g_spy - g_model,
-                    "cr_obs_adj": s.atm_iv / pre[exp].atm_iv / spy_vs_pre,
+                    "g_spy": g_spy, "g_obs_adj": g_obs / g_spy**control_beta, "g_gap_adj": g_obs / g_spy**control_beta - g_model,
+                    "cr_obs_adj": s.atm_iv / pre[exp].atm_iv / spy_vs_pre**control_beta,
                 })
     return pd.DataFrame(rows)
 
@@ -173,3 +175,20 @@ def summarize_path(table: pd.DataFrame) -> pd.DataFrame:
         g_obs=("g_obs", "mean"), g_model=("g_model", "mean"), g_gap=("g_gap", "mean"),
         g_spy=("g_spy", "mean"), g_obs_adj=("g_obs_adj", "mean"), g_gap_adj=("g_gap_adj", "mean"),
     ).reset_index()
+
+
+def estimate_control_beta(table: pd.DataFrame, model: str = "merton") -> dict:
+    """Sensibilidad de la volatilidad de la acción a la del mercado, de los días posteriores al día 0.
+
+    Regresión por mínimos cuadrados `ln g_obs = alpha + beta * ln g_spy` sobre las filas con k > 0 (una sola vez por
+    fila: se usa un solo modelo, que da las mismas g_obs). `beta` es la sensibilidad. `alpha` es la caída (o subida)
+    promedio que queda después de descontar el mercado: negativa significa que el crush sigue después del día 0.
+    Necesita varias observaciones; con las de un solo evento solo sirve para ver el orden de magnitud.
+    """
+    t = table[(table["model"] == model) & (table["k"] > 0)]
+    t = t[np.isfinite(t["g_spy"]) & np.isfinite(t["g_obs"]) & (t["g_spy"] > 0) & (t["g_obs"] > 0)]
+    if len(t) < 3:
+        return {"beta": float("nan"), "alpha": float("nan"), "n": int(len(t))}
+    x, y = np.log(t["g_spy"].to_numpy(float)), np.log(t["g_obs"].to_numpy(float))
+    beta, alpha = np.polyfit(x, y, 1)
+    return {"beta": float(beta), "alpha": float(alpha), "n": int(len(t))}

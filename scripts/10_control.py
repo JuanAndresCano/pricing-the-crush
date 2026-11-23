@@ -5,7 +5,7 @@ Uso (con el Theta Terminal abierto):
     python scripts/10_control.py --root data/smoke --symbol SPY
 
 Cada día se guarda una sola vez en data/control/theta/SPY/ y se comparte entre eventos. Cuesta unos 3 pedidos por día
-nuevo (precio, tasa y cadena cercana al dinero). Es reanudable. Corre después de scripts/08_extra_days.py.
+nuevo (precio, tasa y cadena con una ventana ancha de strikes). Es reanudable. Corre después de scripts/08_extra_days.py.
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", default=str(RAW_DIR), help="carpeta que contiene theta/<TICKER>_<fecha>/")
     ap.add_argument("--symbol", default="SPY")
-    ap.add_argument("--strike-range", type=int, default=15, help="strikes a cada lado del precio (SPY tiene paso de 1 dólar)")
+    ap.add_argument("--strike-range", type=int, default=60, help="strikes a cada lado del precio previo (SPY tiene paso de 1 dólar); ancho para cubrir días de mucho movimiento")
     ap.add_argument("--force", action="store_true")
     args = ap.parse_args()
 

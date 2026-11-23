@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from crush.analysis.crush import control_slices, path_table
-from crush.data.control import download_control, ensure_control_day, event_days, load_control
+from crush.analysis.crush import control_slices, estimate_control_beta, path_table
+from crush.data.control import covers_spot, download_control, ensure_control_day, event_days, load_control
 from crush.market.chain import build_slices
 from crush.models.event_models import MertonEvent
 from tests.test_extra_days import MERTON, _chain, _row, _world
@@ -103,3 +103,51 @@ def test_control_slices_builds_from_loaded_frames(tmp_path):
     spy = _chain(MertonEvent(), _theta(0.18), 0, False)
     ctrl = control_slices({PRE: (spy, S0, None)}, 0.04)
     assert set(ctrl[PRE]) >= {"2026-11-06", "2026-12-04"}
+
+
+class FarSpy(FakeSpy):
+    """Como ThetaData cuando el activo se mueve más que la ventana: los strikes quedan lejos del cierre."""
+
+    def spot(self, symbol, day):
+        return 560.0  # los strikes de FakeSpy van de 495 a 505
+
+
+def test_chain_that_misses_the_money_is_rejected_and_not_stored(tmp_path):
+    assert ensure_control_day(FarSpy(), "SPY", PRE, tmp_path) is None
+    assert load_control(tmp_path, "fake", "SPY", [PRE]) == {}
+    assert download_control(FarSpy(), {"pre_day": PRE, "post_day": POST, "extra_days": {}}, "SPY", tmp_path) == {PRE: False, POST: False}
+
+
+def test_covers_spot():
+    df = pd.DataFrame({"strike": [495.0, 500.0, 505.0]})
+    assert covers_spot(df, 501.0)
+    assert not covers_spot(df, 560.0)  # todos los strikes por debajo
+    assert not covers_spot(pd.DataFrame({"strike": [495.0, 520.0]}), 507.0)  # hay strikes a ambos lados pero lejos
+
+
+def _beta_world(beta: float):
+    """La acción reacciona al mercado con sensibilidad `beta` (en volatilidad), no 1."""
+    data, extra, ctrl = _shock_world()
+    m = MertonEvent()
+    data.post = _chain(m, _theta(0.25 * MARKET[1] ** beta), 1, False)
+    extra = {k: (_chain(m, _theta(0.25 * MARKET[d] ** beta), d, False), DAY[d], S0, None) for k, d in {1: 2, 2: 3, 4: 5}.items()}
+    return data, extra, ctrl
+
+
+def test_unit_beta_overcorrects_and_estimated_beta_fixes_it():
+    data, extra, ctrl = _beta_world(0.4)
+    far = lambda t: t[(t["model"] == "merton") & (t["k"] > 0) & (t["expiry"] == "2026-12-04")]
+    unit = path_table(data, extra, _row(), R, control=ctrl)  # beta 1
+    assert far(unit)["g_gap_adj"].abs().max() > 0.03  # sobrecorrige
+    est = estimate_control_beta(unit)
+    assert est["beta"] == pytest.approx(0.4, abs=0.1) and est["n"] >= 3
+    assert abs(est["alpha"]) < 0.02  # sin crush gradual extra: la constante es cero
+    fixed = path_table(data, extra, _row(), R, control=ctrl, control_beta=est["beta"])
+    assert far(fixed)["g_gap_adj"].abs().max() < 0.015
+    assert far(fixed)["cr_obs_adj"].notna().all()
+
+
+def test_estimate_control_beta_needs_data():
+    data, extra, _ = _shock_world()
+    no_control = path_table(data, extra, _row(), R)
+    assert np.isnan(estimate_control_beta(no_control)["beta"])
