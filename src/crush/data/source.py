@@ -107,6 +107,8 @@ def download_event(
     spot_pre, spot_post = src.spot(ticker, pre), src.spot(ticker, post)
     if spot_pre is None or spot_post is None:
         raise DataError(f"{ticker}: sin precio de cierre de la acción el {pre if spot_pre is None else post}")
+    rate = getattr(src, "rate", None)  # opcional: no todas las fuentes entregan tasas
+    r_pre, r_post = (rate(pre), rate(post)) if rate else (None, None)
     selected = select_contracts(src.list_contracts(ticker, pre), spot_pre, pre, post, params)
     if selected.empty:
         raise DataError(f"{ticker}: ningún contrato cumple las reglas de selección para el anuncio del {announcement_date}")
@@ -126,6 +128,8 @@ def download_event(
         "post_day": str(post),
         "spot_pre": spot_pre,
         "spot_post": spot_post,
+        **({"r_pre": r_pre} if r_pre is not None else {}),
+        **({"r_post": r_post} if r_post is not None else {}),
         "expirations": sorted(str(e) for e in selected["expiry"].unique()),
         "n_contracts": int(len(selected)),
         "n_quotes_pre": int(pre_df["has_quote"].sum()),

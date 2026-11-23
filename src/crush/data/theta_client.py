@@ -82,6 +82,10 @@ class ThetaClient:
         d = _ymd(day)
         return self.get_csv("stock/history/eod", {"symbol": symbol, "start_date": d, "end_date": d})
 
+    def interest_rate(self, symbol: str, start_day, end_day) -> pd.DataFrame:
+        """Tasa diaria en porcentaje (columnas created, rate). Gratis desde 2024-01-01."""
+        return self.get_csv("interest_rate/history/eod", {"symbol": symbol, "start_date": _ymd(start_day), "end_date": _ymd(end_day)})
+
     def option_eod(self, symbol: str, day, max_dte: int | None = 100, strike_range: int | None = None) -> pd.DataFrame:
         d = _ymd(day)
         params = {"symbol": symbol, "expiration": "*", "start_date": d, "end_date": d}
@@ -122,6 +126,18 @@ class ThetaSource:
             return None
         close = df["close"].iloc[-1]
         return float(close) if pd.notna(close) and close > 0 else None
+
+    def rate(self, day, symbol: str = "TREASURY_M1") -> float | None:
+        """Tasa libre de riesgo anual (decimal) del último día con dato hasta `day`; None si no hay acceso."""
+        end = pd.Timestamp(day)
+        try:
+            df = self.client.interest_rate(symbol, end - pd.Timedelta(days=7), end)
+        except DefinitiveError:
+            return None
+        if df.empty or "rate" not in df:
+            return None
+        df = df[pd.to_datetime(df["created"]) <= end]
+        return float(df["rate"].iloc[-1]) / 100.0 if len(df) else None
 
     def _load(self, ticker: str, day) -> pd.DataFrame:
         key = (ticker, str(pd.Timestamp(day).date()))

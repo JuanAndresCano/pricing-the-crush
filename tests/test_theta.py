@@ -150,7 +150,7 @@ def test_download_event_with_theta_uses_one_request_per_day_and_caches(tmp_path)
     src = ThetaSource(client)
     path, status = download_and_cache(src, "XYZ", PRE, "amc", root=tmp_path / "raw", workers=4)
     assert status == "downloaded"
-    assert len(session.calls) == 4  # acción previa y posterior, cadena previa y posterior
+    assert len(session.calls) == 6  # acción, tasa y cadena, antes y después (el servidor falso no tiene tasas: la tasa queda en None)
     ev = load_event(path)
     assert ev.meta["n_contracts"] > 0 and ev.meta["n_quotes_pre"] == ev.meta["n_contracts"]
     assert ev.pre["quote_age_s"].isna().all() and ev.pre["has_quote"].all()

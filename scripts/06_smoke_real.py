@@ -25,13 +25,15 @@ def main() -> None:
     ap.add_argument("--ticker", default="AAPL")
     ap.add_argument("--date", default="2026-11-18")
     ap.add_argument("--timing", default="amc", choices=["bmo", "amc"])
-    ap.add_argument("--r", type=float, default=0.04)
+    ap.add_argument("--r", type=float, default=0.04, help="tasa de respaldo si la fuente no entrega una")
+    ap.add_argument("--force", action="store_true", help="rehacer el evento (las respuestas crudas guardadas no se vuelven a pedir)")
     args = ap.parse_args()
 
-    path, status = download_and_cache(ThetaSource(), args.ticker, args.date, args.timing, root=DATA_DIR / "smoke", workers=1)
+    path, status = download_and_cache(ThetaSource(), args.ticker, args.date, args.timing, root=DATA_DIR / "smoke", workers=1, force=args.force)
     data = load_event(path)
     m = data.meta
     print(f"[{status}] {path}")
+    print(f"tasas r_pre={m.get('r_pre')} r_post={m.get('r_post')}")
     print(f"contratos {m['n_contracts']}, cotizaciones pre {m['n_quotes_pre']}, post {m['n_quotes_post']}, spot {m['spot_pre']} -> {m['spot_post']}")
 
     pd.set_option("display.width", 200)
