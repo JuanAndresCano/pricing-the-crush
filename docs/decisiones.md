@@ -94,3 +94,22 @@ Calibración (3 arranques, θ fijo en la varianza ATM del vencimiento largo = 0,
 - Con un día no anunciado (2026-11-18) los parámetros del evento van a sus cotas (Λ_e = 0,2 en el mínimo, ξ = 3 en el máximo) y el RMSE_IV sube a 3 a 6 puntos: sin evento en la cadena, el modelo con evento no tiene nada que explicar.
 
 Qué falta: más eventos, con fechas y horas verificadas; repetir con θ libre para ver cuánto cambian los parámetros; y revisar las cotas de κ y ξ.
+
+
+## Decisión 14: crush instantáneo o gradual con días posteriores al anuncio
+
+**Descarga.** `scripts/08_extra_days.py` agrega, para los mismos contratos de cada evento, los cierres 1, 2 y 4 días hábiles después del cierre posterior (el cierre posterior es el día 0). Se guardan al lado del evento como `post_p<k>.parquet` y su día, precio de la acción y tasa quedan en `meta.json`, bajo `extra_days`. No toca `pre.parquet` ni `post.parquet`, es reanudable (lo ya pedido no se vuelve a pedir) y omite los días que aún no existen. Cuesta unos 3 pedidos por día extra y evento (≈ 14 minutos para 30 eventos).
+
+**Análisis.** `analysis.crush.path_table` calcula, para cada vencimiento que sigue vivo (al menos 3 días hábiles), la razón de crush observada y la del modelo en cada día, y la **continuación** desde el día 0: `g = IV(k) / IV(0)`.
+
+- Si el crush es instantáneo, `g_obs ≈ 1` después del día 0.
+- Si la volatilidad sigue bajando, `g_obs < 1`.
+- `g_gap = g_obs - g_modelo` es la caída extra sobre lo que el modelo ya espera. Merton-evento predice `g ≈ 1`; Bates-evento predice una caída gradual si `v0 > θ` (reversión hacia θ a velocidad κ).
+
+Las pruebas con mercados simulados lo distinguen: si el mercado lo generó Merton-evento, `g_gap` es ≈ 0 para Merton; si lo generó Bates con `v0 ≫ θ`, la volatilidad baja después del día 0, Merton falla (`g_gap` negativo) y Bates acierta.
+
+**Prueba con datos reales (no es resultado del estudio).** AAPL con el anuncio supuesto del 2026-11-02 (fecha no verificada), vencimiento del 2026-12-04, `g_obs` a +1, +2 y +4 días: 0,91, 1,09 y 0,90. Los dos modelos predicen ≈ 1,00. La volatilidad ATM del vencimiento largo se movió entre 22 % y 27 % en cuatro días, sin una tendencia de caída: ese ruido es de movimientos generales del mercado, no del anuncio.
+
+**Límite principal.** El `g_obs` de un solo evento queda dominado por la volatilidad general del mercado, que cambia del orden de ±10 % en pocos días. Con 30 eventos hay que promediar entre ellos, y para aislar el efecto del anuncio conviene **descontar el movimiento del mercado** (por ejemplo, con la volatilidad implícita de una acción sin anuncio ese día, o de un ETF como SPY, cuyas opciones también entran en el plan gratis). Eso queda como la mejora siguiente; no está implementado.
+
+Se corre con `python scripts/09_crush_path.py` después de la calibración y de `08_extra_days.py`.
