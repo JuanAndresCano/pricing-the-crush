@@ -1,0 +1,13 @@
+"""Rutas y constantes globales del proyecto."""
+
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+DATA_DIR = ROOT / "data"
+RAW_DIR = DATA_DIR / "raw"
+INTERIM_DIR = DATA_DIR / "interim"
+PROCESSED_DIR = DATA_DIR / "processed"
+RESULTS_DIR = ROOT / "results"
+
+# Convención de la teoría: T en años de tiempo de negociación (días hábiles / 252).
+TRADING_DAYS_PER_YEAR = 252
