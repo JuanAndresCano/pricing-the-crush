@@ -27,7 +27,7 @@ def main() -> None:
 
     print(f"[1] Contratos de {args.underlying} vigentes el {d0}, con vencimiento hasta {d1}")
     try:
-        contracts = client.option_contracts(
+        contracts = client.option_contracts_incl_expired(
             args.underlying,
             as_of=d0.isoformat(),
             **{"expiration_date.gte": d0.isoformat(), "expiration_date.lte": d1.isoformat()},
@@ -43,13 +43,13 @@ def main() -> None:
     sample = contracts[len(contracts) // 2]
     print(f"[2] Cotizaciones del {d0} para {sample['ticker']} (strike {sample['strike_price']}, {sample['contract_type']})")
     try:
-        quotes = client.option_quotes(sample["ticker"], d0.isoformat(), limit=1000)
+        last = client.option_last_quote(sample["ticker"], d0)
     except MassiveError as exc:
         print("    FALLÓ:", exc)
         return
-    print(f"    {len(quotes)} cotizaciones")
+    quotes = [last] if last else []
+    print(f"    última cotización: {'sí' if quotes else 'ninguna'}")
     if quotes:
-        last = quotes[-1]
         print(f"    última: bid={last.get('bid_price')} ask={last.get('ask_price')} ts={last.get('sip_timestamp')}")
         print("    OK: el plan entrega cotizaciones históricas con bid y ask.")
     else:

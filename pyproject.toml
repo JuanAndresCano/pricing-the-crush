@@ -15,6 +15,7 @@ dependencies = [
     "matplotlib>=3.8",
     "requests>=2.31",
     "python-dotenv>=1.0",
+    "pandas_market_calendars>=4.4",
 ]
 
 [project.optional-dependencies]
