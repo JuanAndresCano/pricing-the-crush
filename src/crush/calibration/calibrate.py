@@ -59,21 +59,35 @@ def calibrate(
     maxiter: int = 80,
     vega_floor: float = 0.05,
     refine: bool = True,
+    fixed: dict[str, float] | None = None,
 ) -> CalibrationResult:
+    """`fixed` fija parámetros por nombre (p. ej. {"theta": 0.06}); el BIC cuenta solo los libres."""
     ok = np.isfinite(chain.market_iv())
     chain = chain.subset(ok) if not ok.all() else chain
     w = vega_weights(chain, vega_floor)
-    lo, hi = model.lower, model.upper
+    fixed = fixed or {}
+    unknown = set(fixed) - set(model.names)
+    if unknown:
+        raise ValueError(f"Parámetros inexistentes en {model.name}: {sorted(unknown)}")
+    free = np.array([n not in fixed for n in model.names])
+    base = np.array([fixed.get(n, 0.0) for n in model.names], dtype=float)
+    lo, hi = model.lower[free], model.upper[free]
 
-    def resid(theta):
+    def full(x):
+        t = base.copy()
+        t[free] = x
+        return t
+
+    def resid(x):
+        theta = full(x)
         # Algunas combinaciones extremas de parámetros dan divisiones por cero en la función característica.
         # Esos precios quedan como nan y se castigan con BAD, así que se silencian las advertencias.
         with np.errstate(all="ignore"):
             r = (model_prices(model, theta, chain) - chain.price) * w
         return np.where(np.isfinite(r), r, BAD)
 
-    def objective(theta):
-        return float(np.mean(resid(theta) ** 2))
+    def objective(x):
+        return float(np.mean(resid(x) ** 2))
 
     starts = []
     for s in range(n_starts):
@@ -82,10 +96,12 @@ def calibrate(
             tol=1e-10, atol=0, polish=False, updating="immediate", init="sobol",
         )
         theta = de.x
-        if refine:
+        if refine and free.any():
             ls = least_squares(resid, theta, bounds=(lo, hi), x_scale=(hi - lo), xtol=1e-14, ftol=1e-14, gtol=1e-14)
             if objective(ls.x) <= de.fun:
                 theta = ls.x
         starts.append((objective(theta), theta))
+    starts = [(l, full(x)) for l, x in starts]
     loss, theta = min(starts, key=lambda s: s[0])
-    return CalibrationResult(model, theta, loss, rmse_iv(model, theta, chain), bic(model, theta, chain), starts)
+    n_free = int(free.sum())
+    return CalibrationResult(model, theta, loss, rmse_iv(model, theta, chain), bic(model, theta, chain, n_free), starts)

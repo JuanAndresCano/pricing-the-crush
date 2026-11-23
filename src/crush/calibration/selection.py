@@ -25,8 +25,8 @@ def rmse_iv(model: EventModel, theta, chain: OptionChain) -> float:
     return float(np.sqrt(np.mean(e**2)))
 
 
-def bic(model: EventModel, theta, chain: OptionChain) -> float:
+def bic(model: EventModel, theta, chain: OptionChain, n_params: int | None = None) -> float:
     e = iv_errors(model, theta, chain)
     m = e.size
     rss = max(float(np.sum(e**2)), 1e-300)
-    return float(m * np.log(rss / m) + model.n_params * np.log(m))
+    return float(m * np.log(rss / m) + (model.n_params if n_params is None else n_params) * np.log(m))
