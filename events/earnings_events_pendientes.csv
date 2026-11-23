@@ -1,0 +1,14 @@
+ticker,announcement_date,timing,source_a,source_b,verified
+AAPL,2026-01-29,amc,,SEC EDGAR 8-K Item 2.02 aceptado 2026-01-29 21:30 UTC,false
+AAPL,2026-04-30,amc,,SEC EDGAR 8-K Item 2.02 aceptado 2026-04-30 20:30 UTC,false
+NVDA,2026-05-20,amc,,SEC EDGAR 8-K Item 2.02 aceptado 2026-05-20 20:21 UTC,false
+NVDA,2026-11-17,amc,,SEC EDGAR 8-K Item 2.02 aceptado 2026-11-17 21:20 UTC,false
+NFLX,2026-01-20,amc,,SEC EDGAR 8-K Item 2.02 aceptado 2026-01-20 21:07 UTC,false
+NFLX,2026-04-16,amc,,SEC EDGAR 8-K Item 2.02 aceptado 2026-04-16 20:01 UTC,false
+NFLX,2026-07-16,amc,,SEC EDGAR 8-K Item 2.02 aceptado 2026-07-16 20:03 UTC,false
+NFLX,2026-10-20,amc,,SEC EDGAR 8-K Item 2.02 aceptado 2026-10-20 20:01 UTC,false
+TSLA,2026-10-21,amc,,SEC EDGAR 8-K Item 2.02 aceptado 2026-10-21 20:41 UTC,false
+JPM,2026-01-13,bmo,,SEC EDGAR 8-K Item 2.02 aceptado 2026-01-13 11:41 UTC,false
+JPM,2026-07-14,bmo,,SEC EDGAR 8-K Item 2.02 aceptado 2026-07-14 10:30 UTC,false
+JPM,2026-10-13,bmo,,SEC EDGAR 8-K Item 2.02 aceptado 2026-10-13 10:30 UTC,false
+WMT,2026-11-19,bmo,,SEC EDGAR 8-K Item 2.02 aceptado 2026-11-19 11:58 UTC,false
