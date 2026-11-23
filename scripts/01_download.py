@@ -17,6 +17,7 @@ from pathlib import Path
 from crush.config import RAW_DIR, ROOT
 from crush.data.calendar import load_events
 from crush.data.massive_client import MassiveError
+from crush.data.theta_client import ThetaError
 from crush.data.selection import SelectionParams
 from crush.data.source import DataError, MassiveSource, download_and_cache
 
@@ -24,7 +25,7 @@ from crush.data.source import DataError, MassiveSource, download_and_cache
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--events", default=str(ROOT / "events" / "earnings_events.csv"))
-    ap.add_argument("--source", default="massive", choices=["massive"])
+    ap.add_argument("--source", default="massive", choices=["massive", "theta"])
     ap.add_argument("--limit", type=int, default=None, help="solo los primeros N eventos")
     ap.add_argument("--force", action="store_true", help="volver a descargar aunque ya exista")
     ap.add_argument("--include-unverified", action="store_true", help="incluir filas con verified distinto de true")
@@ -45,7 +46,13 @@ def main() -> int:
     if args.limit:
         events = events.head(args.limit)
 
-    src = MassiveSource()
+    if args.source == "theta":
+        from crush.data.theta_client import ThetaSource
+
+        src = ThetaSource()
+        args.workers = 1  # el plan gratis limita el ritmo; ThetaSource pide una cadena por día y empresa
+    else:
+        src = MassiveSource()
     params = SelectionParams(n_near=args.n_near, far_min_days=args.far_min_days)
     ok = cached = 0
     failed: list[str] = []
@@ -56,7 +63,7 @@ def main() -> int:
                 src, ev["ticker"], ev["announcement_date"], ev["timing"],
                 root=RAW_DIR, force=args.force, params=params, workers=args.workers,
             )
-        except (DataError, MassiveError) as exc:
+        except (DataError, MassiveError, ThetaError) as exc:
             failed.append(tag)
             print(f"[FALLÓ]  {tag}: {exc}")
             continue

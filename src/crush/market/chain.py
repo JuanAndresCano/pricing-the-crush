@@ -45,7 +45,7 @@ def clean_quotes(df: pd.DataFrame, params: CleanParams | None = None) -> pd.Data
         & (bid > 0)
         & (ask >= bid)
         & (out["rel_spread"] <= p.max_rel_spread)
-        & (age <= p.max_age_s)
+        & (age.isna() | (age <= p.max_age_s))  # sin hora (reporte de fin de día) no se puede juzgar la antigüedad
     )
     return out
 
