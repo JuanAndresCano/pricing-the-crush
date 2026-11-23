@@ -43,3 +43,54 @@ Los parámetros del evento y v₀ se recuperan casi exactos. Los demás tienen u
 - No se debe extrapolar K_repl a plazos más largos que los observados con κ y θ mal identificados.
 
 Prueba automática de la recuperación sin ruido: `tests/test_calibration.py` (la de Bates está marcada como lenta, se corre con `pytest -m slow`).
+
+
+## Hallazgos con datos reales (ThetaData, plan gratis)
+
+Prueba del 23-nov-2026 con la cuenta gratis y el Theta Terminal v3 (unos 35 pedidos en total). No son resultados del estudio: el evento de prueba (AAPL, anuncio supuesto el 2026-11-02 después del cierre) se eligió porque los datos lo muestran como un anuncio, y su fecha y hora **no están verificadas** con fuentes externas.
+
+**Acceso**
+
+- `Stock`, `Options`, `Index` y `Rate` salen como `FREE`. El plan gratis devuelve cadenas completas de fin de día con `bid`, `ask` y sus tamaños, incluidas fechas de 2023 (2023-08-01, 2025-06-03, 2025-11-24 y 2026) y contratos ya vencidos. La restricción de "12 meses" era de Databento, no de ThetaData.
+- Límites: 30 pedidos por minuto y **1 pedido a la vez** (`Max concurrent requests: 1`). Una cadena completa de una empresa y un día es un solo pedido. El cliente espera 3,1 s entre pedidos.
+- El servidor del Terminal escucha por defecto en `0.0.0.0`; se cambió a `127.0.0.1` en `config.toml`.
+- Las tasas (`interest_rate/history/eod`) son gratis solo desde 2024-01-01. Antes de esa fecha el servidor responde 400 y se usa la tasa de respaldo (4 %).
+- El reporte de fin de día no trae la hora de cada cotización: no se puede medir su antigüedad.
+
+## Decisión 11: piso de spread en dólares para las alas
+
+Con el filtro de spread relativo de 0,5 solo, se descartaba la mayor parte de las opciones a más del 5 % del precio: son opciones de pocos centavos y un spread de $0,02 ya es el 100 %. Se agregó `min_abs_spread = 0,05` (dólares): un spread de hasta ese tamaño se acepta siempre, y el bid sigue debiendo ser positivo.
+
+Efecto medido en AAPL (vencimiento más corto): la diferencia entre el strike sin y con extrapolación pasa de 3,2 % a 0,7 %, la volatilidad ATM no cambia y el rango de strikes cubierto sube de [-0,08; 0,04] a [-0,18; 0,06] en moneyness logarítmica. Es una regla de tamaño de tick, no un ajuste a una empresa; conviene revisarla con otros precios de acción.
+
+## Decisión 12: tasa libre de riesgo
+
+La tasa de cada día sale del bono del Tesoro a 1 mes (`TREASURY_M1`) de ThetaData, guardada en la meta del evento como `r_pre` y `r_post`. Si no está disponible se usa 4 %. Con las tasas reales (4,0 % a 4,1 %) el cambio frente al 4 % fijo es mínimo, como se esperaba.
+
+## Prueba de punta a punta sobre un evento real
+
+Datos: AAPL, cierre del 2026-11-02 y del 2026-11-03.
+
+| Medida | Valor |
+|---|---|
+| Volatilidad ATM del vencimiento de 4 días, antes / después | 48,3 % / 27,9 %, razón observada CR = 0,577 |
+| Varianza de evento del mercado (26), eps | 0,0022 (ATM) y 0,0030 (strike); movimiento implícito de 4,7 % a 5,5 % |
+| Control en la cadena posterior (eps) | 0,0001, cercano a cero como debe ser |
+| Movimiento realizado de la acción | -1,9 % (cierre a cierre) |
+
+Calibración (3 arranques, θ fijo en la varianza ATM del vencimiento largo = 0,088):
+
+| | Merton-evento | Bates-evento |
+|---|---|---|
+| RMSE_IV | 2,44 pts | 2,25 pts |
+| BIC | -679,6 | -681,5 |
+| Error de K_repl, vencimiento de 4 días | +1,2 % | +0,5 % |
+| Error de K_repl, vencimiento de 5 días | -1,0 % | -0,8 % |
+| CR del modelo (vencimientos de 4 y 5 días) | 0,48 y 0,52 | 0,53 y 0,56 |
+
+- Ambos modelos quedan cerca del strike del mercado (menos de 1,5 %). Bates mejora poco el ajuste y apenas gana por BIC con un solo evento.
+- Ambos **sobreestiman el crush** (0,48 a 0,56 contra 0,58 observado). Casi todo el crush del modelo viene de la salida del evento; la reversión de la varianza de Bates es ≈ 1, porque κ queda en su cota inferior (0,1).
+- Cada calibración tardó unos 3 minutos con 3 arranques.
+- Con un día no anunciado (2026-11-18) los parámetros del evento van a sus cotas (Λ_e = 0,2 en el mínimo, ξ = 3 en el máximo) y el RMSE_IV sube a 3 a 6 puntos: sin evento en la cadena, el modelo con evento no tiene nada que explicar.
+
+Qué falta: más eventos, con fechas y horas verificadas; repetir con θ libre para ver cuánto cambian los parámetros; y revisar las cotas de κ y ξ.

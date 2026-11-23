@@ -17,6 +17,7 @@ from crush.calibration.calibrate import CalibrationResult, calibrate
 from crush.calibration.quotes import OptionChain
 from crush.config import TRADING_DAYS_PER_YEAR
 from crush.market.chain import CleanParams, Slice, build_slices
+from crush.market.rates import event_rates
 from crush.market.strike_mkt import k_repl_smooth
 from crush.models.event_models import BatesEvent, EventModel, MertonEvent
 
@@ -46,7 +47,7 @@ class EventCalibration:
 
 def calibrate_event(data, r: float, params: CleanParams | None = None, n_starts: int = 2, seed: int = 0, **kw) -> EventCalibration | None:
     m = data.meta
-    slices = build_slices(data.pre, m["pre_day"], m["spot_pre"], r, params)
+    slices = build_slices(data.pre, m["pre_day"], m["spot_pre"], event_rates(m, r)[0], params)
     if len(slices) < 2:
         return None
     chain = chain_from_slices(slices)

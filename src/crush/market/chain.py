@@ -27,6 +27,7 @@ from crush.models.black_scholes import implied_vol_array
 @dataclass(frozen=True)
 class CleanParams:
     max_rel_spread: float = 0.5  # (ask - bid) / mid
+    min_abs_spread: float = 0.05  # en dólares: un spread de hasta este tamaño siempre se acepta (opciones baratas de las alas)
     max_age_s: float = 3600.0  # antigüedad máxima de la cotización respecto al cierre
     n_parity: int = 5  # strikes cercanos a la acción para el forward
 
@@ -44,8 +45,8 @@ def clean_quotes(df: pd.DataFrame, params: CleanParams | None = None) -> pd.Data
         out["has_quote"].astype(bool)
         & (bid > 0)
         & (ask >= bid)
-        & (out["rel_spread"] <= p.max_rel_spread)
-        & (age <= p.max_age_s)
+        & ((out["rel_spread"] <= p.max_rel_spread) | ((ask - bid) <= p.min_abs_spread))
+        & (age.isna() | (age <= p.max_age_s))  # sin hora (reporte de fin de día) no se puede juzgar la antigüedad
     )
     return out
 

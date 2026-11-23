@@ -27,6 +27,7 @@ import pandas as pd
 from crush.analysis.compare import MODELS, theta_from_row
 from crush.config import TRADING_DAYS_PER_YEAR
 from crush.market.chain import CleanParams, build_slices
+from crush.market.rates import event_rates
 from crush.models.black_scholes import implied_vol
 from crush.models.event_models import BatesEvent, EventModel
 from crush.models.fourier import CallPricer
@@ -61,8 +62,9 @@ def model_crush(model: EventModel, theta, pre, post) -> dict:
 def crush_table(data, cal_row, r: float, params: CleanParams | None = None) -> pd.DataFrame:
     """Una fila por vencimiento y modelo: CR observado, CR del modelo y sus dos pedazos."""
     m = data.meta
-    pre = {s.expiry: s for s in build_slices(data.pre, m["pre_day"], m["spot_pre"], r, params)}
-    post = {s.expiry: s for s in build_slices(data.post, m["post_day"], m["spot_post"], r, params)}
+    r_pre, r_post = event_rates(m, r)
+    pre = {s.expiry: s for s in build_slices(data.pre, m["pre_day"], m["spot_pre"], r_pre, params)}
+    post = {s.expiry: s for s in build_slices(data.post, m["post_day"], m["spot_post"], r_post, params)}
     rows = []
     for exp in sorted(set(pre) & set(post)):
         cr_obs = post[exp].atm_iv / pre[exp].atm_iv
