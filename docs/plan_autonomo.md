@@ -36,3 +36,7 @@ Para descartar una tarea suelta: `git revert <commit>`. Los archivos descargados
 El plan es sólido porque todo es reversible y solo lee datos gratis. El peor caso es perder tiempo de cómputo o descubrir que el formato real difiere de lo documentado, y eso es justo lo que queremos saber antes de depender de él. No hay ningún paso que toque dinero, claves, cuentas o la rama principal.
 
 Límites que me impongo: máximo unos 40 pedidos en total a ThetaData, parar y documentar si algo falla dos veces, y no interpretar resultados económicos de un evento de mentira.
+
+## Resultado (23-nov-2026)
+
+Tareas 1 a 4 hechas, cada una en su commit sobre la rama `autonomo/datos-reales`. No se gastó dinero (solo plan gratis de ThetaData, unos 35 pedidos) y no se hizo push. Los hallazgos están en `docs/decisiones.md`, secciones "Hallazgos con datos reales", decisión 11 (piso de spread en dólares) y decisión 12 (tasa libre de riesgo). Se verificó con un evento real: el flujo completo, desde la descarga hasta el crush del modelo, funciona y da números coherentes. Quedan para el equipo las fechas verificadas de los anuncios.
