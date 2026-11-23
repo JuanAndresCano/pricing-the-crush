@@ -4,7 +4,7 @@
 
 ## Por qué estas empresas y estas ventanas
 
-- **Ventana:** solo anuncios de los últimos 12 meses (desde noviembre de 2025), porque tanto el plan gratis de ThetaData como el crédito de Databento limitan la historia de cotizaciones a ese plazo. Si resulta que alcanza más atrás, se amplía.
+- **Ventana:** el plan gratis de ThetaData devolvió cadenas completas de AAPL con bid y ask de fechas desde agosto de 2023 (probado el 23-nov-2026 con 2023-08-01, 2025-06-03 y 2025-11-24), incluidos contratos ya vencidos. La documentación dice que el primer acceso es 2023-06-01. Entonces se pueden elegir anuncios desde mediados de 2023, no solo los últimos 12 meses (esa restricción es del crédito de Databento, que queda de respaldo). Más trimestres permiten más fechas distintas por empresa.
 - **Opciones semanales:** el modelo necesita vencimientos de 5 a 10 días hábiles que crucen el anuncio. Todas estas empresas tienen vencimientos semanales y spreads angostos.
 - **Mezcla `amc` / `bmo`:** 7 tecnológicas reportan después del cierre y 3 (JPM, WMT, HD) antes de la apertura, para no depender de un solo tipo de evento.
 - **Fechas distintas:** el contraste de Wilcoxon se hace por fecha, así que importa tener muchas fechas diferentes. Evita llenar solo con los días en que reportan varias a la vez.
