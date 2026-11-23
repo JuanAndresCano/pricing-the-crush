@@ -20,7 +20,7 @@ from crush.data.source import load_event
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--source", default="massive")
+    ap.add_argument("--source", default="theta")
     ap.add_argument("--r", type=float, default=0.04)
     ap.add_argument("--starts", type=int, default=3)
     args = ap.parse_args()

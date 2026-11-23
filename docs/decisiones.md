@@ -94,3 +94,23 @@ Calibración (3 arranques, θ fijo en la varianza ATM del vencimiento largo = 0,
 - Con un día no anunciado (2026-11-18) los parámetros del evento van a sus cotas (Λ_e = 0,2 en el mínimo, ξ = 3 en el máximo) y el RMSE_IV sube a 3 a 6 puntos: sin evento en la cadena, el modelo con evento no tiene nada que explicar.
 
 Qué falta: más eventos, con fechas y horas verificadas; repetir con θ libre para ver cuánto cambian los parámetros; y revisar las cotas de κ y ξ.
+
+
+## Decisión 13: movimiento realizado contra implícito
+
+Para cada evento: `R_e = ln(S_post / S_pre)`, con los dos cierres del evento (los mismos que definen `pre_day` y `post_day`, según `bmo`/`amc`), contra la varianza de evento ε de la ecuación (26). Se reportan con ε de dos formas (ATM y strike de replicación):
+
+- movimiento implícito `sqrt(ε)` y realizado `|R_e|`;
+- `R_e² / ε` y `z = |R_e| / sqrt(ε)` (cuántos "movimientos implícitos" se movió la acción);
+- `ε - R_e²`, prima de varianza del evento: positiva si el mercado cobró más de lo que se movió la acción;
+- el valor del variance swap comprado antes del anuncio, justo después de que ocurre.
+
+**Valor del swap.** Con la ecuación (35), `RV_{0,t} = R_e²/t`, `K_{t,T} = σ_b²` (el evento ya no está) y `K_var = σ_b² + ε/T` sale exacto `V = N (R_e² - ε - σ_b² t) / T`. La ecuación (36) del marco teórico es la misma sin el término `σ_b² t`, que es la varianza base de ese día. Con t = 1 día es chico, pero no cero; el código usa la exacta y se puede pasar `sigma_b = 0` para tener (36). La prueba `test_event_swap_value_matches_equation_35` comprueba la identidad contra `simulation.rv.swap_value`.
+
+**Historia propia.** `add_history` calcula el promedio de `R_e²` de los anuncios anteriores de la misma empresa (contraparte bajo la medida física), solo con eventos de fecha previa y con al menos 2 previos.
+
+**Contraste.** Wilcoxon sobre `ε - R_e²` agrupado por fecha del anuncio, igual que en la Pregunta 1. Se excluyen los eventos con `|R_e| > 0,5` (posible split sin ajustar). Con menos de 6 fechas no se reporta p-valor.
+
+**Prueba con datos reales (no es resultado del estudio).** El evento de AAPL del 2026-11-02 (fecha no verificada): movimiento implícito de 4,7 % contra 1,9 % realizado, `R_e²/ε = 0,17`, `z = 0,41`; el comprador del swap habría perdido (`V ≈ -0,14` por unidad de nocional). Las otras tres fechas de prueba (2026-10-29, 11-03 y 11-18) no son el día del anuncio y sirven de contraste: el movimiento realizado no se parece al implícito (`z` de 0,31, 4,53 y 1,05), lo que muestra cuánto depende todo de tener la fecha y la hora correctas.
+
+Se corre con `python scripts/07_realized.py` (los eventos de prueba, con `--root data/smoke`).

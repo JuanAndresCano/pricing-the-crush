@@ -21,7 +21,7 @@ from crush.market.event_mkt import event_row, slice_table
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--source", default="massive")
+    ap.add_argument("--source", default="theta")
     ap.add_argument("--r", type=float, default=0.04, help="tasa libre de riesgo anual, constante")
     args = ap.parse_args()
 

@@ -74,6 +74,7 @@ def event_row(data, r: float, params: CleanParams | None = None) -> dict:
             row[f"eps_{how}"] = ev.eps if ev else np.nan
             row[f"sigma_b_{how}"] = ev.sigma_b if ev else np.nan
             row[f"cr_split_{how}"] = ev.crush_ratio if ev else np.nan
+        row["T_1"] = pre[0].T  # plazo del vencimiento más cercano (el del swap de referencia)
         row["atm_iv_pre"] = pre[0].atm_iv
         row["k_repl_pre"] = k_repl_smooth(pre[0].K, pre[0].iv, pre[0].T, r_pre, pre[0].F)
     if len(post) >= 2:
