@@ -192,4 +192,5 @@ Los experimentos de `docs/experimentos.md` son descriptivos, no entran en las 13
 - **Beta por sector (E5).** Los betas difieren (de 0,25 en comunicaciones a 0,67 en financiero; prueba de igualdad p = 0,007), pero cada estimación usa pocos eventos y los errores robustos son optimistas. Con el beta de cada grupo la caída extra no cambia (−4,05 % contra −4,03 %). Decisión: se mantiene el beta único y esto se reporta como robustez.
 - **Bates con θ libre o κ ancho (E2).** No cambia la conclusión de la Pregunta 1; κ queda en su cota inferior en el 54 % de los eventos con cotas amplias.
 - **Control QQQ (E3).** Caída extra de −5,3 % (Bates) y −3,9 % (Merton), casi igual que con SPY.
+- **Validación fuera de muestra (E6).** Calibrando con strikes alternos y evaluando con los demás, Bates ajusta mejor en el 83,5 % de los eventos (p < 0,001) y su strike queda más cerca en el vencimiento 2 (p = 0,001) y no en el 1 (p = 0,20). La ventaja de Bates no es sobreajuste.
 - **Monte Carlo (E7).** Reproduce las fórmulas cerradas con diferencia media de 0,06 % a 0,2 %; no distingue entre modelos, solo valida la implementación.

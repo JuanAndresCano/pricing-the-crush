@@ -18,6 +18,7 @@ Resultados (todos en `results/`, con la corrección de Holm sobre los 13 contras
 - **Pregunta 1.** Bates queda más cerca del strike del mercado en el 62 % (vencimiento 1) y el 66 % (vencimiento 2) de los eventos. El vencimiento 2 es significativo (p = 0,0001; Holm 0,0004) y el 1 no (p = 0,073). Se mantiene por año, sin el choque arancelario de abril de 2025, por horario del anuncio y quitando cada empresa.
 - **Pregunta 2.** El crush no es del todo instantáneo: la volatilidad sigue bajando 3 a 7 puntos porcentuales después del día 0, más de lo que explican el mercado (SPY o QQQ como control) y los modelos. Significativo con los dos modelos y en +1, +2 y +4 días, también con Holm. Un placebo en días sin anuncio no muestra caída extra (+0,3 %, p = 0,65), así que no es decaimiento normal de la volatilidad.
 - **Movimiento realizado contra implícito.** El mercado cobró en promedio 6,9 % y la acción se movió 4,8 % (p = 0,0004).
+- **Validación fuera de muestra.** Con strikes que no vio en la calibración, Bates ajusta mejor en el 83,5 % de los eventos (p < 0,001) y su strike queda más cerca en el vencimiento 2 (p = 0,001).
 - **Monte Carlo.** La simulación reproduce las fórmulas cerradas dentro de 0,2 % en promedio.
 
 Límites: 79 eventos de dos años y 10 empresas, con κ y θ de Bates no identificables con vencimientos tan cortos (θ se fija). Ver la sección de límites del informe y `docs/decisiones.md`.
