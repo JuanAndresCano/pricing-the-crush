@@ -19,6 +19,7 @@ Resultados (todos en `results/`, con la corrección de Holm sobre los 13 contras
 - **Pregunta 2.** El crush no es del todo instantáneo: la volatilidad sigue bajando 3 a 7 puntos porcentuales después del día 0, más de lo que explican el mercado (SPY o QQQ como control) y los modelos. Significativo con los dos modelos y en +1, +2 y +4 días, también con Holm. Un placebo en días sin anuncio no muestra caída extra (+0,3 %, p = 0,65), así que no es decaimiento normal de la volatilidad.
 - **Movimiento realizado contra implícito.** El mercado cobró en promedio 6,9 % y la acción se movió 4,8 % (p = 0,0004).
 - **Validación fuera de muestra.** Con strikes que no vio en la calibración, Bates ajusta mejor en el 83,5 % de los eventos (p < 0,001) y su strike queda más cerca en el vencimiento 2 (p = 0,001).
+- **Varianza forward y parámetro c.** El escalón de la varianza forward del anuncio existe en todos los eventos y casi desaparece después (media 0,32 a 0,034). El reajuste c de la varianza base baja con los días (Merton: 1,02 el día 0 y 0,91 a +4 días), otra forma del crush gradual.
 - **Monte Carlo.** La simulación reproduce las fórmulas cerradas dentro de 0,2 % en promedio.
 
 Límites: 79 eventos de dos años y 10 empresas, con κ y θ de Bates no identificables con vencimientos tan cortos (θ se fija). Ver la sección de límites del informe y `docs/decisiones.md`.
@@ -46,7 +47,7 @@ src/crush/
   calibration/   calibración por mínimos cuadrados ponderados por vega, selección, variantes de Bates
   simulation/    merton_mc, bates_qe, jumps, rv
   analysis/      compare, crush, gradual, realized, multiple (Holm), robustness, placebo, beta_groups, oos, montecarlo
-scripts/         pipeline numerado, ver abajo
+scripts/         pipeline numerado (01 a 21), ver abajo
 events/          calendario de anuncios verificado (earnings_events.csv) y su LEEME
 docs/            teoría, decisiones, experimentos, resumen
 results/         tablas que sí se versionan
@@ -82,6 +83,7 @@ Experimentos de robustez (cada uno escribe en archivos propios y no cambia los r
 | `18_beta_groups.py` | beta por empresa y por sector |
 | `19_oos.py` | validación fuera de muestra |
 | `20_monte_carlo.py` | Monte Carlo sobre los eventos calibrados |
+| `21_forward_c.py` | varianza forward (escalón del anuncio) y parámetro c |
 
 Los scripts `00_smoke_massive.py` y `06_smoke_real.py` son pruebas de acceso a las fuentes de datos. Detalle y hallazgos de cada experimento en `docs/experimentos.md`.
 

@@ -1,0 +1,6 @@
+source,mean_step_pre,median_step_pre,mean_step_post,median_step_post,share_step_pre_positive,test,n_events,n_dates,mean_d,share,pvalue
+mkt,0.31849613821096323,0.2395272207654487,0.03390663653088518,0.024409836815683275,1.0,,,,,,
+merton,0.32607224306488586,0.23807511782808843,2.757765525911847e-18,0.0,1.0,,,,,,
+bates,0.319586415219986,0.2379354787365836,-0.0027947316775186366,-0.00013827204576490754,1.0,,,,,,
+,,,,,,mercado: escalón antes menos después (> 0: el escalón desaparece),78.0,63.0,0.28458950168007807,1.0,5.16839481363226e-12
+,,,,,,escalón antes del anuncio: error de Merton menos error de Bates (> 0: Bates más cerca),78.0,63.0,0.00522972248577811,0.6538461538461539,0.002064821225090989

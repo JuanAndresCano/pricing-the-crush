@@ -36,6 +36,7 @@ En lenguaje claro: antes de un anuncio de resultados, el precio de las opciones 
 - **Pregunta 2.** El crush no es del todo instantáneo: la volatilidad sigue bajando unos 3 a 7 puntos porcentuales en los días siguientes, más de lo que explican el mercado y los modelos, con Bates y con Merton. Un placebo en días sin anuncio no muestra esa caída (+0,3 %, p = 0,65), así que no es decaimiento normal de la volatilidad.
 - **Movimiento realizado contra implícito:** el mercado cobró en promedio 6,9 % y la acción se movió 4,8 % (p = 0,0004).
 - **Validación fuera de muestra:** calibrando con la mitad de los strikes, Bates ajusta mejor los que no vio en el 83,5 % de los eventos (p < 0,001): su ventaja no es sobreajuste.
+- **Varianza forward y parámetro c:** el escalón que el anuncio deja en la varianza forward existe en todos los eventos y casi desaparece después; el reajuste de la varianza base tras el anuncio baja con los días, otra forma del crush gradual.
 - **Monte Carlo:** reproduce las fórmulas cerradas dentro de 0,2 % en promedio.
 
 **Límites:** 79 eventos de dos años y 10 empresas; los parámetros de reversión de Bates (κ y θ) no son identificables con vencimientos tan cortos, así que θ se fija; el beta del control es único para todas las empresas.
