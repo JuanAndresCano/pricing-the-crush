@@ -85,3 +85,54 @@ def summarize_crush(table: pd.DataFrame) -> pd.DataFrame:
         n=("cr_obs", "size"), cr_obs=("cr_obs", "mean"), cr_model=("cr_model", "mean"), cr_event=("cr_event", "mean"),
         cr_revert=("cr_revert", "mean"), gap=("gap", "mean"), mae=("gap", lambda x: float(np.mean(np.abs(x)))),
     ).reset_index()
+
+
+# --- trayectoria en los días posteriores (instantáneo contra gradual) -------------------------------------------
+
+
+def path_table(data, extra: dict, cal_row, r: float, params: CleanParams | None = None, min_days_left: int = 3) -> pd.DataFrame:
+    """Una fila por vencimiento, día posterior y modelo.
+
+    `extra` viene de `data.extra_days.load_extra_days`. El día 0 es `post`; los demás son los cierres 1, 2, 4 días
+    hábiles después. Para cada vencimiento que sigue vivo (al menos `min_days_left` días hábiles) compara:
+
+      cr_obs, cr_model   volatilidad ATM del día k / la del día previo al anuncio, observada y del modelo
+      g_obs, g_model     lo que cambia respecto al día 0: IV(k) / IV(0). Si el crush fuera instantáneo, g ~ 1; si sigue
+                         bajando, g_obs < 1. `g_gap = g_obs - g_model` mide cuánta caída extra hay sobre lo que el
+                         modelo ya espera (en Bates, por la reversión de la varianza hacia theta).
+    """
+    m = data.meta
+    r_pre, r_post = event_rates(m, r)
+    pre = {s.expiry: s for s in build_slices(data.pre, m["pre_day"], m["spot_pre"], r_pre, params)}
+    days = {0: (data.post, m["post_day"], m["spot_post"], r_post)}
+    for k, (df, day, spot, rd) in extra.items():
+        days[k] = (df, day, spot, r_post if rd is None else rd)
+    by_day = {k: {s.expiry: s for s in build_slices(df, day, spot, rd, params)} for k, (df, day, spot, rd) in days.items()}
+    thetas = {tag: theta_from_row(cal_row, tag) for tag in MODELS}
+    rows = []
+    for k in sorted(by_day):
+        for exp, s in by_day[k].items():
+            left = round(s.T * TRADING_DAYS_PER_YEAR)
+            if exp not in pre or left < min_days_left or exp not in by_day[0]:
+                continue
+            s0 = by_day[0][exp]
+            for tag, model in MODELS.items():
+                res = model_crush(model, thetas[tag], pre[exp], s)
+                res0 = model_crush(model, thetas[tag], pre[exp], s0)
+                g_obs = s.atm_iv / s0.atm_iv
+                g_model = res["iv_post_model"] / res0["iv_post_model"]
+                rows.append({
+                    "ticker": m["ticker"], "announcement_date": m["announcement_date"], "expiry": exp, "k": k, "days_left": left, "model": tag,
+                    "cr_obs": s.atm_iv / pre[exp].atm_iv, "cr_model": res["cr_model"], "g_obs": g_obs, "g_model": g_model,
+                    "g_gap": g_obs - g_model, "iv_obs": s.atm_iv, "iv_model": res["iv_post_model"],
+                })
+    return pd.DataFrame(rows)
+
+
+def summarize_path(table: pd.DataFrame) -> pd.DataFrame:
+    """Promedios por modelo y día posterior: crush observado y del modelo, y la caída extra sobre el día 0."""
+    g = table.groupby(["model", "k"])
+    return g.agg(
+        n=("g_obs", "size"), cr_obs=("cr_obs", "mean"), cr_model=("cr_model", "mean"),
+        g_obs=("g_obs", "mean"), g_model=("g_model", "mean"), g_gap=("g_gap", "mean"),
+    ).reset_index()
