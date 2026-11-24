@@ -167,3 +167,11 @@ Se corre con `python scripts/09_crush_path.py` después de la calibración y de 
 **Qué falta para responder la Pregunta 2.** Unos 30 eventos con fechas verificadas, sus días extra y el control SPY. Con eso corren, en orden: `03_calibrate`, `08_extra_days`, `10_control`, `09_crush_path` y `11_gradual_test`. Si `alpha` no es distinto de cero y los residuos de Merton y Bates son parecidos, el crush es instantáneo a este nivel de datos; si `alpha < 0` de forma robusta, hay una parte gradual que ni el mercado ni el salto de evento explican, y es la que Bates solo podría capturar con reversión de varianza.
 
 **Límites.** Beta constante y común a todas las empresas; SPY como control (QQQ podría servir mejor para las tecnológicas); solo tres horizontes; una sola foto de fin de día; y con 30 eventos concentrados en pocas fechas la potencia será baja.
+
+## Decisión 17: corrección por comparaciones múltiples, Holm como principal
+
+**Decisión.** Los 13 contrastes del proyecto (2 de la Pregunta 1, 10 de la 2 y 1 de movimiento realizado) se corrigen con Holm, dentro de cada pregunta y sobre las 13 juntas (`analysis/multiple.py`, `scripts/12_multiple_testing.py`, `results/multiple_testing.csv`). Benjamini-Hochberg se calcula solo como referencia.
+
+**Por qué Holm.** Controla la probabilidad de al menos un falso positivo y vale con cualquier dependencia entre pruebas; aquí las pruebas comparten eventos, y BH solo es aproximado en ese caso.
+
+**Resultado (40 eventos, 32 fechas).** La Pregunta 2 resiste, salvo el horizonte +1 día. La ventaja de Bates en la Pregunta 1 (vencimiento 2, p = 0,048) y la prima en el movimiento realizado (p = 0,043) no resisten.
