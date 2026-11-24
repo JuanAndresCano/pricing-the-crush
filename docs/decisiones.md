@@ -9,7 +9,6 @@
 | 5 | Tasa libre de riesgo y dividendos | Decidido | Tasa del bono a 1 mes de ThetaData (decisión 12). El forward sale de la paridad put-call |
 | 6 | Herramientas | Decidido | Python 3.13, numpy, scipy, pandas, pyarrow, matplotlib, pytest |
 | 7 | Idioma | Propuesto | Código en inglés, texto del proyecto en español |
-| 8 | Fecha de entrega y formato final | Pendiente | |
 | 9 | Flujo en git | Decidido | Se trabaja directo sobre `main`, con pruebas en verde antes de cada commit. Los push los hace cada persona. (Antes: una rama por tarea.) |
 | 10 | Vencimientos a descargar y tratamiento de κ y θ | Decidido | Incluir al menos un vencimiento de 21 días o más, idealmente uno de 40 a 60. Fijar θ con la volatilidad ATM de largo plazo o regularizar la calibración. No interpretar κ ni θ por separado. Ver hallazgos abajo |
 

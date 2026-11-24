@@ -34,7 +34,7 @@ pip install -e ".[dev]"
 pytest
 ```
 
-Para descargar datos se necesita el Theta Terminal v3 abierto (`java -jar ThetaTerminalv3.jar`, con una cuenta gratuita de ThetaData). Las credenciales las maneja el Terminal: no se guardan en este repositorio. `.env.example` y `MASSIVE_API_KEY` quedaron de una fuente de datos que no se usó (Massive).
+Para descargar datos se necesita el Theta Terminal v3 abierto (`java -jar ThetaTerminalv3.jar`, con una cuenta gratuita de ThetaData). Las credenciales las maneja el Terminal: no se guardan en este repositorio. No hace falta ningún archivo `.env` para el estudio: `.env.example` solo documenta `MASSIVE_API_KEY`, de una fuente que no se usó (Massive).
 
 ## Estructura
 
@@ -84,6 +84,10 @@ Experimentos de robustez (cada uno escribe en archivos propios y no cambia los r
 | `20_monte_carlo.py` | Monte Carlo sobre los eventos calibrados |
 
 Los scripts `00_smoke_massive.py` y `06_smoke_real.py` son pruebas de acceso a las fuentes de datos. Detalle y hallazgos de cada experimento en `docs/experimentos.md`.
+
+## Licencia y uso
+
+Documento de investigación con fines académicos; no constituye asesoramiento financiero. Los datos de ThetaData (plan gratuito) son de uso no comercial y no se redistribuyen: `data/` está fuera de git.
 
 ## Flujo de trabajo
 
