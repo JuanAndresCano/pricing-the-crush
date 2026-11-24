@@ -2,16 +2,16 @@
 
 | # | Decisión | Estado | Notas |
 |---|----------|--------|-------|
-| 1 | Fuente de datos de opciones | Probable: API de Massive | Confirmar que el plan incluye cotizaciones históricas con bid y ask, y el rango de fechas |
-| 2 | Universo de eventos | Pendiente | 10 a 15 empresas líquidas, 3 o 4 trimestres, unos 30 eventos como mínimo |
-| 3 | Calendario de anuncios | Pendiente | CSV versionado con ticker, fecha y antes de apertura o después de cierre. Verificar en dos fuentes |
-| 4 | Modelo a calibrar | Propuesto | Merton y Bates con evento, Λ_e fijo y λ_c = 0 |
-| 5 | Tasa libre de riesgo y dividendos | Propuesto | Tasa de letras del Tesoro de FRED. El forward sale de la paridad put-call |
+| 1 | Fuente de datos de opciones | Decidido: ThetaData (plan gratis) | Da bid y ask de fin de día desde 2023, 30 pedidos por minuto. Massive y Databento quedaron sin usar. Ver "Hallazgos con datos reales" |
+| 2 | Universo de eventos | Decidido | 10 empresas (AAPL, MSFT, NVDA, AMZN, META, NFLX, TSLA, JPM, WMT, HD), anuncios de 2025 y 2026: 79 eventos verificados en 63 fechas |
+| 3 | Calendario de anuncios | Hecho | `events/earnings_events.csv`, 80 filas, 79 verificadas con dos fuentes (SEC EDGAR 8-K y página de la empresa). JPM 2025-01-15 excluido por no tener segunda fuente |
+| 4 | Modelo a calibrar | Decidido | Merton y Bates con evento, Λ_e fijo y λ_c = 0 |
+| 5 | Tasa libre de riesgo y dividendos | Decidido | Tasa del bono a 1 mes de ThetaData (decisión 12). El forward sale de la paridad put-call |
 | 6 | Herramientas | Decidido | Python 3.13, numpy, scipy, pandas, pyarrow, matplotlib, pytest |
 | 7 | Idioma | Propuesto | Código en inglés, texto del proyecto en español |
 | 8 | Fecha de entrega y formato final | Pendiente | |
-| 9 | Flujo en git | Decidido | Una rama por tarea, pull request revisado, `main` con pruebas en verde. Los push los hace cada persona |
-| 10 | Vencimientos a descargar y tratamiento de κ y θ | Propuesto | Incluir al menos un vencimiento de 21 días o más, idealmente uno de 40 a 60. Fijar θ con la volatilidad ATM de largo plazo o regularizar la calibración. No interpretar κ ni θ por separado. Ver hallazgos abajo |
+| 9 | Flujo en git | Decidido | Se trabaja directo sobre `main`, con pruebas en verde antes de cada commit. Los push los hace cada persona. (Antes: una rama por tarea.) |
+| 10 | Vencimientos a descargar y tratamiento de κ y θ | Decidido | Incluir al menos un vencimiento de 21 días o más, idealmente uno de 40 a 60. Fijar θ con la volatilidad ATM de largo plazo o regularizar la calibración. No interpretar κ ni θ por separado. Ver hallazgos abajo |
 
 ## Hallazgos de la calibración sintética (prueba 10)
 
@@ -174,4 +174,22 @@ Se corre con `python scripts/09_crush_path.py` después de la calibración y de 
 
 **Por qué Holm.** Controla la probabilidad de al menos un falso positivo y vale con cualquier dependencia entre pruebas; aquí las pruebas comparten eventos, y BH solo es aproximado en ese caso.
 
-**Resultado (40 eventos, 32 fechas).** La Pregunta 2 resiste, salvo el horizonte +1 día. La ventaja de Bates en la Pregunta 1 (vencimiento 2, p = 0,048) y la prima en el movimiento realizado (p = 0,043) no resisten.
+**Resultado (79 eventos, 63 fechas).** Los 10 contrastes de la Pregunta 2 y el de movimiento realizado resisten Holm sobre las 13 pruebas (el más alto es 0,0007). En la Pregunta 1, el vencimiento 2 resiste (p = 0,0001, Holm 0,0004) y el 1 no es significativo (0,073). Con los 40 eventos de 2026 solos, la Pregunta 1 y el movimiento realizado no resistían y el horizonte +1 día era frágil; ampliar la muestra los consolidó. Los valores exactos están en `results/multiple_testing.csv`.
+
+## Decisión 18: ampliar la muestra con los anuncios de 2025
+
+**Decisión.** Se agregaron los 40 anuncios de 2025 de las mismas 10 empresas (de 40 a 80 filas; 79 verificadas). Se hizo antes de mirar nuevos contrastes, para ganar potencia y no para buscar significancia: la muestra de 2026 sola dejaba la Pregunta 1 en el borde.
+
+**Verificación.** Igual que los de 2026: SEC EDGAR 8-K Item 2.02 (hora de aceptación en ET: desde las 16:00 es `amc`, antes de las 9:30 `bmo`) más una segunda fuente de la empresa. El 8-K de entrega del día 2 de cada mes de Tesla se excluye. JPM del 2025-01-15 no tiene segunda fuente y queda fuera.
+
+**Riesgo.** Abril de 2025 tuvo un choque arancelario con volatilidad de mercado extrema. Se mide aparte (robustez "sin choque de abril de 2025"): no cambia ninguna conclusión.
+
+## Decisión 19: robustez, placebo y validaciones (experimentos E1 a E7)
+
+Los experimentos de `docs/experimentos.md` son descriptivos, no entran en las 13 pruebas corregidas, y la hipótesis de cada uno se escribe antes de ver el resultado. Los resultados clave:
+
+- **Placebo de ventana (E4).** En días sin anuncio la caída extra es +0,3 % (p = 0,65), contra −4,2 % en los eventos reales; la diferencia (−4,5 %, p < 0,001) descarta que la Pregunta 2 sea decaimiento normal de la volatilidad cerca del vencimiento. Decisión: la conclusión de crush gradual se mantiene.
+- **Beta por sector (E5).** Los betas difieren (de 0,25 en comunicaciones a 0,67 en financiero; prueba de igualdad p = 0,007), pero cada estimación usa pocos eventos y los errores robustos son optimistas. Con el beta de cada grupo la caída extra no cambia (−4,05 % contra −4,03 %). Decisión: se mantiene el beta único y esto se reporta como robustez.
+- **Bates con θ libre o κ ancho (E2).** No cambia la conclusión de la Pregunta 1; κ queda en su cota inferior en el 54 % de los eventos con cotas amplias.
+- **Control QQQ (E3).** Caída extra de −5,3 % (Bates) y −3,9 % (Merton), casi igual que con SPY.
+- **Monte Carlo (E7).** Reproduce las fórmulas cerradas con diferencia media de 0,06 % a 0,2 %; no distingue entre modelos, solo valida la implementación.

@@ -1,5 +1,7 @@
 # Calendario de anuncios
 
+**Estado:** `earnings_events.csv` tiene 80 filas (10 empresas, 2025 y 2026), 79 verificadas con dos fuentes (SEC EDGAR 8-K Item 2.02 y la página de relaciones con inversionistas). La de JPM del 2025-01-15 quedó con `verified=False` por no tener segunda fuente y el código la ignora. La plantilla de abajo es el punto de partida original (40 filas vacías); el texto que sigue describe cómo se llenó.
+
 `earnings_events_template.csv` es la plantilla: 10 empresas × 4 trimestres = 40 filas, de las que se necesitan unas 30. Las fechas están **vacías a propósito**: no se inventan, se verifican. El archivo que lee el código es `earnings_events.csv`; copia ahí las filas que completes.
 
 ## Por qué estas empresas y estas ventanas

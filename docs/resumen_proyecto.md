@@ -18,43 +18,37 @@ En lenguaje claro: antes de un anuncio de resultados, el precio de las opciones 
 - **Volatilidad implícita.** Cada precio se convierte en la volatilidad que lo explica, para poder comparar opciones distintas entre sí.
 - **Calibración.** Se buscan los parámetros de cada modelo que mejor reproducen los precios observados, y se comparan los modelos penalizando que uno tenga más parámetros que el otro.
 - ***Fair strike*.** Se calcula la medida de incertidumbre del mercado a partir de las opciones y se compara con la que implica cada modelo calibrado.
-- **Simulación (Monte Carlo).** Se simulan miles de trayectorias del precio para verificar que las fórmulas están bien y para ver la distribución completa de resultados. Al final, los resultados de cada evento se comparan entre modelos con pruebas estadísticas.
+- **Simulación (Monte Carlo).** Se simulan miles de trayectorias del precio para verificar que las fórmulas están bien y para ver la distribución completa de resultados. Al final, los resultados de cada evento se comparan entre modelos con pruebas estadísticas agrupadas por fecha y corregidas por comparaciones múltiples (Holm).
 
-## 3. Qué datos necesita y por qué
+## 3. Datos
 
-- **Qué:** cadenas históricas de opciones de acciones individuales de EE. UU. con precio de compra y venta (*bid* y *ask*) al cierre del día (datos de fin de día son suficientes), para el **día antes y el día después** de cada anuncio de resultados.
-- **Cuántos:** unas 30 empresas-evento aproximadamente, entre **noviembre de 2024 y noviembre de 2026**, con 2 o 3 vencimientos cercanos por evento.
-- **Complementos:** precio de cierre de la acción y calendario de anuncios con la hora (antes de la apertura o después del cierre), porque define en qué día cae el movimiento.
-- **Por qué:** el día antes mide la incertidumbre que el mercado tiene incorporada; el día después permite medir cuánto cae. Sin precios *bid* y *ask* no se puede estimar un precio justo de forma fiable.
-- **Tipo de uso:** descarga única de datos históricos para investigación; no se necesita información en tiempo real.
-- **Fuentes que se están considerando:** la API de Massive (plan Advanced, de pago), Databento, ThetaData y OptionMetrics a través de WRDS, si la universidad tiene acceso. Precios, cobertura y condiciones de licencia de cada una están por verificar.
+- **Qué se usó:** cadenas históricas de opciones de acciones individuales de EE. UU. con precio de compra y venta (*bid* y *ask*) al cierre del día, de ThetaData (plan gratuito, que resultó suficiente), para el día antes, el día después y los días +1, +2 y +4 de cada anuncio. Más las cadenas de SPY y QQQ de los mismos días, para descontar el movimiento general del mercado.
+- **Cuántos:** 79 anuncios de 2025 y 2026 de 10 empresas (AAPL, MSFT, NVDA, AMZN, META, NFLX, TSLA, JPM, WMT y HD), en 63 fechas distintas. Cada fecha y hora se verificó con SEC EDGAR (8-K) y una segunda fuente, la página de relaciones con inversionistas de la empresa. Un anuncio de JPM (15-ene-2025) se excluyó por no tener segunda fuente.
+- **Por qué:** el día antes mide la incertidumbre que el mercado tiene incorporada; el día después, y los siguientes, permiten medir cuánto cae y si sigue cayendo.
+- **Límites de los datos:** el reporte de fin de día no trae la hora de cada cotización, y el plan gratuito limita a 30 pedidos por minuto.
 
 ## 4. Estado actual
 
-**Hecho y probado con pruebas automáticas (unas 97 pruebas pasando):**
-- Motor de precios: Black-Scholes, Merton, Heston, Bates y el factor de evento de resultados.
-- Solver de volatilidad implícita.
-- Simulación Monte Carlo de Merton y de Bates. Los precios de Bates por Monte Carlo coinciden con los obtenidos por el método de inversión de Fourier.
+**Hecho y probado (208 pruebas automáticas):** motor de precios (Black-Scholes, Merton, Heston, Bates, factor de evento), calibración, descarga y limpieza de datos reales, simulación Monte Carlo, y todo el análisis de las dos preguntas.
 
-**En curso:**
-- Calibración con datos sintéticos, que consiste en comprobar que el código recupera parámetros conocidos.
+**Resultados con los 79 eventos:**
+- **Pregunta 1.** Bates se acerca más al strike del mercado en el 62 % (vencimiento 1) y el 66 % (vencimiento 2) de los eventos. La diferencia es significativa en el vencimiento 2 (p = 0,0001; con corrección por comparaciones múltiples, 0,0004) y no en el 1 (p = 0,073). Se mantiene por año, sin el choque arancelario de abril de 2025, por horario del anuncio y quitando cada empresa.
+- **Pregunta 2.** El crush no es del todo instantáneo: la volatilidad sigue bajando unos 3 a 7 puntos porcentuales en los días siguientes, más de lo que explican el mercado y los modelos, con Bates y con Merton. Un placebo en días sin anuncio no muestra esa caída (+0,3 %, p = 0,65), así que no es decaimiento normal de la volatilidad.
+- **Movimiento realizado contra implícito:** el mercado cobró en promedio 6,9 % y la acción se movió 4,8 % (p = 0,0004).
+- **Monte Carlo:** reproduce las fórmulas cerradas dentro de 0,2 % en promedio.
 
-**Pendiente:**
-- Obtener los datos reales de opciones.
-- Calibrar con datos reales y comparar con el mercado.
+**Límites:** 79 eventos de dos años y 10 empresas; los parámetros de reversión de Bates (κ y θ) no son identificables con vencimientos tan cortos, así que θ se fija; el beta del control es único para todas las empresas.
 
-Todavía **no hay resultados con datos reales**; lo avanzado hasta ahora valida la herramienta, no responde aún las preguntas de investigación.
+**Pendiente:** validación fuera de muestra (en curso), más empresas y los anuncios de 2024, y acordar con el equipo las correcciones al marco teórico. El informe completo está en Claude Docs y los números en `results/`.
 
 ## 5. Qué se le pide a la universidad
 
-Según lo que sea posible, cualquiera de estas opciones ayudaría:
-
-- Acceso a una base de datos de opciones, por ejemplo OptionMetrics a través de WRDS, si la universidad la tiene.
-- Orientación sobre licencias académicas de datos financieros (qué se puede usar, para qué y cómo citarlo).
-- Tutoría o acompañamiento académico para revisar la metodología y los resultados.
+- Revisión metodológica de los resultados y de las pruebas estadísticas.
+- Orientación sobre cómo citar y reportar datos de ThetaData en un trabajo académico (el plan gratuito es para uso no comercial).
+- Opcional: acceso a una base como OptionMetrics a través de WRDS para ampliar la muestra a más años y empresas.
 
 ---
 
 ## Versión corta para correo
 
-Estoy desarrollando el proyecto "Pricing the Crush", que compara los modelos de Merton y Bates para explicar cómo el mercado de opciones valora la incertidumbre alrededor de los anuncios de resultados de empresas y la caída de volatilidad posterior. El motor de precios, el cálculo de volatilidad implícita y la simulación ya están implementados y probados; la calibración con datos sintéticos está en curso. Me falta obtener datos históricos de fin de día (bid y ask) de opciones de acciones de EE. UU. para unos 30 anuncios entre noviembre de 2024 y noviembre de 2026. ¿Sería posible acceso a una base como OptionMetrics/WRDS, orientación sobre licencias académicas de datos o una tutoría? Con gusto envío el resumen completo.
+Estoy desarrollando el proyecto "Pricing the Crush", que compara los modelos de Merton y Bates para explicar cómo el mercado de opciones valora la incertidumbre alrededor de los anuncios de resultados de empresas y la caída de volatilidad posterior. Con 79 anuncios de 10 empresas de EE. UU. (2025 y 2026), Bates se acerca más que Merton a lo que cobra el mercado en el vencimiento más largo, y la volatilidad sigue bajando unos 3 a 7 puntos porcentuales después del día del anuncio, más de lo que explican el mercado y los modelos; un placebo en días sin anuncio descarta que sea un efecto normal de vencimiento. ¿Sería posible una revisión metodológica de los resultados o acceso a una base como OptionMetrics/WRDS para ampliar la muestra? Con gusto envío el resumen completo.

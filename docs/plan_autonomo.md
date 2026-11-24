@@ -1,5 +1,7 @@
 # Plan de trabajo autónomo: validar el flujo con datos reales
 
+> **Documento histórico (23-nov-2026).** Describe una etapa ya cerrada: la prueba con un evento de mentira, antes de tener el calendario verificado. Ya se verificó el calendario y se corrió el estudio con 79 eventos; el trabajo se hace directo sobre `main` y la rama `autonomo/datos-reales` ya no se usa. El estado vigente está en el README y en `docs/resumen_proyecto.md`.
+
 Fecha: 2026-11-23. Contexto: ThetaData gratis ya responde con cadenas de opciones reales (bid y ask de cierre, desde 2023, contratos vencidos incluidos). Falta la lista de eventos verificada, que depende del equipo. Mientras tanto, este plan prueba el código contra datos reales sin necesitar esa lista.
 
 ## Reglas de este trabajo
