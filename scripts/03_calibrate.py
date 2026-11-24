@@ -4,6 +4,7 @@ Uso:
     python scripts/03_calibrate.py --r 0.04 --starts 3
 
 Escribe data/processed/calibration.csv (una fila por evento). Es lento: unos minutos por evento y modelo.
+Con --resume se saltan los eventos que ya están en el archivo (úsalo al agregar eventos nuevos con los mismos parámetros).
 """
 
 from __future__ import annotations
@@ -23,6 +24,7 @@ def main() -> int:
     ap.add_argument("--source", default="theta")
     ap.add_argument("--r", type=float, default=0.04)
     ap.add_argument("--starts", type=int, default=3)
+    ap.add_argument("--resume", action="store_true", help="conserva lo ya calibrado en calibration.csv y calibra solo los eventos que faltan")
     args = ap.parse_args()
 
     folders = sorted(p for p in (RAW_DIR / args.source).glob("*_*") if (p / "meta.json").exists())
@@ -31,7 +33,14 @@ def main() -> int:
         return 1
     out = PROCESSED_DIR / "calibration.csv"
     rows = []
+    done: set[str] = set()
+    if args.resume and out.exists():
+        prev = pd.read_csv(out)
+        rows = prev.to_dict("records")
+        done = {f"{r.ticker}_{r.announcement_date}" for r in prev.itertuples()}
     for f in folders:
+        if f.name in done:
+            continue
         data = load_event(f)
         cal = calibrate_event(data, args.r, n_starts=args.starts)
         if cal is None:
