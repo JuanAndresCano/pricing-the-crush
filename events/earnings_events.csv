@@ -1,28 +1,41 @@
 ticker,announcement_date,timing,source_a,source_b,verified
-AAPL,2026-07-30,amc,apple.com/newsroom (Apple reports third quarter results),SEC EDGAR 8-K Item 2.02 aceptado 2026-07-30 20:30 UTC,true
-AAPL,2026-11-02,amc,apple.com/newsroom (Apple reports fourth quarter results),SEC EDGAR 8-K Item 2.02 aceptado 2026-11-02 21:30 UTC,true
-MSFT,2026-01-28,amc,news.microsoft.com (aviso de fecha de resultados 2026-01-07),SEC EDGAR 8-K Item 2.02 aceptado 2026-01-28 21:04 UTC,true
-MSFT,2026-04-29,amc,news.microsoft.com (aviso de fecha de resultados 2026-04-08),SEC EDGAR 8-K Item 2.02 aceptado 2026-04-29 20:03 UTC,true
-MSFT,2026-07-29,amc,news.microsoft.com (aviso de fecha de resultados 2026-07-08),SEC EDGAR 8-K Item 2.02 aceptado 2026-07-29 20:04 UTC,true
-MSFT,2026-10-28,amc,news.microsoft.com (aviso de fecha de resultados 2026-10-07),SEC EDGAR 8-K Item 2.02 aceptado 2026-10-28 20:04 UTC,true
-NVDA,2026-02-25,amc,investor.nvidia.com (Q4 FY2026 financial results),SEC EDGAR 8-K Item 2.02 aceptado 2026-02-25 21:31 UTC,true
-NVDA,2026-08-26,amc,investor.nvidia.com (pagina de resultados trimestrales),SEC EDGAR 8-K Item 2.02 aceptado 2026-08-26 20:21 UTC,true
-AMZN,2026-02-05,amc,ir.aboutamazon.com (Amazon.com Announces Fourth Quarter Results),SEC EDGAR 8-K Item 2.02 aceptado 2026-02-05 21:25 UTC,true
-AMZN,2026-04-29,amc,ir.aboutamazon.com (Amazon.com Announces First Quarter Results),SEC EDGAR 8-K Item 2.02 aceptado 2026-04-29 20:18 UTC,true
-AMZN,2026-07-30,amc,ir.aboutamazon.com (Amazon.com Announces Second Quarter Results),SEC EDGAR 8-K Item 2.02 aceptado 2026-07-30 20:06 UTC,true
-AMZN,2026-10-29,amc,nasdaq.com/finviz (Amazon.com Announces Third Quarter Results),SEC EDGAR 8-K Item 2.02 aceptado 2026-10-29 20:05 UTC,true
-META,2026-01-28,amc,investor.atmeta.com (Meta Reports Fourth Quarter and Full Year 2025 Results),SEC EDGAR 8-K Item 2.02 aceptado 2026-01-28 21:04 UTC,true
-META,2026-04-29,amc,investor.atmeta.com (Meta Reports First Quarter 2026 Results),SEC EDGAR 8-K Item 2.02 aceptado 2026-04-29 20:05 UTC,true
-META,2026-07-29,amc,investor.atmeta.com (Meta Reports Second Quarter 2026 Results),SEC EDGAR 8-K Item 2.02 aceptado 2026-07-29 20:03 UTC,true
-META,2026-10-21,amc,investor.atmeta.com (Meta Reports Third Quarter 2026 Results),SEC EDGAR 8-K Item 2.02 aceptado 2026-10-21 20:03 UTC,true
-TSLA,2026-01-28,amc,ir.tesla.com (webcast Q&A resultados Q4 2025),SEC EDGAR 8-K Item 2.02 aceptado 2026-01-28 21:11 UTC,true
-TSLA,2026-04-22,amc,ir.tesla.com (Tesla Releases First Quarter 2026 Financial Results),SEC EDGAR 8-K Item 2.02 aceptado 2026-04-22 20:10 UTC,true
-TSLA,2026-07-22,amc,ir.tesla.com (webcast Q&A resultados Q2 2026),SEC EDGAR 8-K Item 2.02 aceptado 2026-07-22 20:35 UTC,true
-JPM,2026-04-14,bmo,jpmorganchase.com/ir (llamada Q1 2026 el 14-abr 8:30 ET),SEC EDGAR 8-K Item 2.02 aceptado 2026-04-14 10:32 UTC,true
-WMT,2026-02-19,bmo,corporate.walmart.com (aviso resultados Q4 6am CST),SEC EDGAR 8-K Item 2.02 aceptado 2026-02-19 11:59 UTC,true
-WMT,2026-05-21,bmo,corporate.walmart.com (aviso llamada Q1 21-may-2026),SEC EDGAR 8-K Item 2.02 aceptado 2026-05-21 10:59 UTC,true
-WMT,2026-08-20,bmo,corporate.walmart.com (aviso llamada Q2 20-ago-2026),SEC EDGAR 8-K Item 2.02 aceptado 2026-08-20 10:59 UTC,true
-HD,2026-02-24,bmo,ir.homedepot.com (aviso llamada Q4 24-feb-2026),SEC EDGAR 8-K Item 2.02 aceptado 2026-02-24 11:07 UTC,true
-HD,2026-05-19,bmo,ir.homedepot.com (calendario de eventos 9:00 ET),SEC EDGAR 8-K Item 2.02 aceptado 2026-05-19 10:06 UTC,true
-HD,2026-08-18,bmo,ir.homedepot.com (aviso llamada Q2 18-ago-2026),SEC EDGAR 8-K Item 2.02 aceptado 2026-08-18 10:10 UTC,true
-HD,2026-11-17,bmo,ir.homedepot.com (calendario de eventos 9:00 ET),SEC EDGAR 8-K Item 2.02 aceptado 2026-11-17 11:18 UTC,true
+AAPL,2026-01-29,amc,apple.com/newsroom (comunicado fechado 29-ene-2026),SEC EDGAR 8-K Item 2.02 aceptado 2026-01-29 21:30 UTC,True
+AAPL,2026-04-30,amc,apple.com/newsroom (comunicado fechado 30-abr-2026),SEC EDGAR 8-K Item 2.02 aceptado 2026-04-30 20:30 UTC,True
+AAPL,2026-07-30,amc,apple.com/newsroom (Apple reports third quarter results),SEC EDGAR 8-K Item 2.02 aceptado 2026-07-30 20:30 UTC,True
+AAPL,2026-11-02,amc,apple.com/newsroom (Apple reports fourth quarter results),SEC EDGAR 8-K Item 2.02 aceptado 2026-11-02 21:30 UTC,True
+AMZN,2026-02-05,amc,ir.aboutamazon.com (Amazon.com Announces Fourth Quarter Results),SEC EDGAR 8-K Item 2.02 aceptado 2026-02-05 21:25 UTC,True
+AMZN,2026-04-29,amc,ir.aboutamazon.com (Amazon.com Announces First Quarter Results),SEC EDGAR 8-K Item 2.02 aceptado 2026-04-29 20:18 UTC,True
+AMZN,2026-07-30,amc,ir.aboutamazon.com (Amazon.com Announces Second Quarter Results),SEC EDGAR 8-K Item 2.02 aceptado 2026-07-30 20:06 UTC,True
+AMZN,2026-10-29,amc,nasdaq.com/finviz (Amazon.com Announces Third Quarter Results),SEC EDGAR 8-K Item 2.02 aceptado 2026-10-29 20:05 UTC,True
+HD,2026-02-24,bmo,ir.homedepot.com (aviso llamada Q4 24-feb-2026),SEC EDGAR 8-K Item 2.02 aceptado 2026-02-24 11:07 UTC,True
+HD,2026-05-19,bmo,ir.homedepot.com (calendario de eventos 9:00 ET),SEC EDGAR 8-K Item 2.02 aceptado 2026-05-19 10:06 UTC,True
+HD,2026-08-18,bmo,ir.homedepot.com (aviso llamada Q2 18-ago-2026),SEC EDGAR 8-K Item 2.02 aceptado 2026-08-18 10:10 UTC,True
+HD,2026-11-17,bmo,ir.homedepot.com (calendario de eventos 9:00 ET),SEC EDGAR 8-K Item 2.02 aceptado 2026-11-17 11:18 UTC,True
+JPM,2026-01-13,bmo,jpmorganchase.com/ir (transcripcion 4Q25 fechada 13-ene-2026),SEC EDGAR 8-K Item 2.02 aceptado 2026-01-13 11:41 UTC,True
+JPM,2026-04-14,bmo,jpmorganchase.com/ir (llamada Q1 2026 el 14-abr 8:30 ET),SEC EDGAR 8-K Item 2.02 aceptado 2026-04-14 10:32 UTC,True
+JPM,2026-07-14,bmo,jpmorganchase.com/ir (transcripcion 2Q26 fechada 14-jul-2026),SEC EDGAR 8-K Item 2.02 aceptado 2026-07-14 10:30 UTC,True
+JPM,2026-10-13,bmo,jpmorganchase.com/ir (resultados 3Q26 fechados 13-oct-2026),SEC EDGAR 8-K Item 2.02 aceptado 2026-10-13 10:30 UTC,True
+META,2026-01-28,amc,investor.atmeta.com (Meta Reports Fourth Quarter and Full Year 2025 Results),SEC EDGAR 8-K Item 2.02 aceptado 2026-01-28 21:04 UTC,True
+META,2026-04-29,amc,investor.atmeta.com (Meta Reports First Quarter 2026 Results),SEC EDGAR 8-K Item 2.02 aceptado 2026-04-29 20:05 UTC,True
+META,2026-07-29,amc,investor.atmeta.com (Meta Reports Second Quarter 2026 Results),SEC EDGAR 8-K Item 2.02 aceptado 2026-07-29 20:03 UTC,True
+META,2026-10-21,amc,investor.atmeta.com (Meta Reports Third Quarter 2026 Results),SEC EDGAR 8-K Item 2.02 aceptado 2026-10-21 20:03 UTC,True
+MSFT,2026-01-28,amc,news.microsoft.com (aviso de fecha de resultados 2026-01-07),SEC EDGAR 8-K Item 2.02 aceptado 2026-01-28 21:04 UTC,True
+MSFT,2026-04-29,amc,news.microsoft.com (aviso de fecha de resultados 2026-04-08),SEC EDGAR 8-K Item 2.02 aceptado 2026-04-29 20:03 UTC,True
+MSFT,2026-07-29,amc,news.microsoft.com (aviso de fecha de resultados 2026-07-08),SEC EDGAR 8-K Item 2.02 aceptado 2026-07-29 20:04 UTC,True
+MSFT,2026-10-28,amc,news.microsoft.com (aviso de fecha de resultados 2026-10-07),SEC EDGAR 8-K Item 2.02 aceptado 2026-10-28 20:04 UTC,True
+NFLX,2026-01-20,amc,ir.netflix.net (calendario de eventos: entrevista Q4 2025 el 20-ene-2026),SEC EDGAR 8-K Item 2.02 aceptado 2026-01-20 21:07 UTC,True
+NFLX,2026-04-16,amc,ir.netflix.net (calendario de eventos: entrevista Q1 2026 el 16-abr-2026),SEC EDGAR 8-K Item 2.02 aceptado 2026-04-16 20:01 UTC,True
+NFLX,2026-07-16,amc,ir.netflix.net (calendario de eventos: entrevista Q2 2026 el 16-jul-2026),SEC EDGAR 8-K Item 2.02 aceptado 2026-07-16 20:03 UTC,True
+NFLX,2026-10-20,amc,ir.netflix.net (calendario de eventos: entrevista Q3 2026 el 20-oct-2026),SEC EDGAR 8-K Item 2.02 aceptado 2026-10-20 20:01 UTC,True
+NVDA,2026-02-25,amc,investor.nvidia.com (Q4 FY2026 financial results),SEC EDGAR 8-K Item 2.02 aceptado 2026-02-25 21:31 UTC,True
+NVDA,2026-05-20,amc,nvidianews.nvidia.com (comunicado fechado 20-may-2026),SEC EDGAR 8-K Item 2.02 aceptado 2026-05-20 20:21 UTC,True
+NVDA,2026-08-26,amc,investor.nvidia.com (pagina de resultados trimestrales),SEC EDGAR 8-K Item 2.02 aceptado 2026-08-26 20:21 UTC,True
+NVDA,2026-11-17,amc,nvidianews.nvidia.com (comunicado fechado 17-nov-2026),SEC EDGAR 8-K Item 2.02 aceptado 2026-11-17 21:20 UTC,True
+TSLA,2026-01-28,amc,ir.tesla.com (webcast Q&A resultados Q4 2025),SEC EDGAR 8-K Item 2.02 aceptado 2026-01-28 21:11 UTC,True
+TSLA,2026-04-22,amc,ir.tesla.com (Tesla Releases First Quarter 2026 Financial Results),SEC EDGAR 8-K Item 2.02 aceptado 2026-04-22 20:10 UTC,True
+TSLA,2026-07-22,amc,ir.tesla.com (webcast Q&A resultados Q2 2026),SEC EDGAR 8-K Item 2.02 aceptado 2026-07-22 20:35 UTC,True
+TSLA,2026-10-21,amc,ir.tesla.com (comunicado Business Wire 21-oct-2026),SEC EDGAR 8-K Item 2.02 aceptado 2026-10-21 20:41 UTC,True
+WMT,2026-02-19,bmo,corporate.walmart.com (aviso resultados Q4 6am CST),SEC EDGAR 8-K Item 2.02 aceptado 2026-02-19 11:59 UTC,True
+WMT,2026-05-21,bmo,corporate.walmart.com (aviso llamada Q1 21-may-2026),SEC EDGAR 8-K Item 2.02 aceptado 2026-05-21 10:59 UTC,True
+WMT,2026-08-20,bmo,corporate.walmart.com (aviso llamada Q2 20-ago-2026),SEC EDGAR 8-K Item 2.02 aceptado 2026-08-20 10:59 UTC,True
+WMT,2026-11-19,bmo,corporate.walmart.com (publicado 2026-11-19 06:00 CT),SEC EDGAR 8-K Item 2.02 aceptado 2026-11-19 11:58 UTC,True
