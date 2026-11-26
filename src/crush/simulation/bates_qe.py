@@ -47,8 +47,13 @@ def simulate_bates_logreturns(
     rng: np.random.Generator | None = None,
     antithetic: bool = True,
     return_variance: bool = False,
+    crush: tuple[int, float] | None = None,
 ):
-    """Log-retornos por paso (n_paths, n). Con `return_variance` entrega también v en cada nodo (n_paths, n+1)."""
+    """Log-retornos por paso (n_paths, n). Con `return_variance` entrega también v en cada nodo (n_paths, n+1).
+
+    `crush = (paso, c)` multiplica la varianza por `c` al final de ese paso (marco teórico, sección 6, "el vol crush en
+    la simulación"): el retorno de ese paso usa la varianza sin reajustar y los siguientes, la reajustada.
+    """
     rng = rng or np.random.default_rng()
     p = heston
     n = schedule.n
@@ -75,6 +80,8 @@ def simulate_bates_logreturns(
         out[:, i] = (
             b * dt - comp[i] + k0 + k1 * v + k2 * vn + np.sqrt(np.maximum(k34 * (v + vn), 0.0)) * z[:, i] + jumps[:, i]
         )
+        if crush is not None and i == crush[0]:
+            vn = crush[1] * vn
         v = vn
         vs.append(v)
     return (out, np.column_stack(vs)) if return_variance else out

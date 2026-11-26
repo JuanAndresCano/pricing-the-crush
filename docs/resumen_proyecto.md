@@ -29,7 +29,7 @@ En lenguaje claro: antes de un anuncio de resultados, el precio de las opciones 
 
 ## 4. Estado actual
 
-**Hecho y probado (214 pruebas automáticas):** motor de precios (Black-Scholes, Merton, Heston, Bates, factor de evento), calibración, descarga y limpieza de datos reales, simulación Monte Carlo, y todo el análisis de las dos preguntas.
+**Hecho y probado (222 pruebas automáticas):** motor de precios (Black-Scholes, Merton, Heston, Bates, factor de evento), calibración, descarga y limpieza de datos reales, simulación Monte Carlo, y todo el análisis de las dos preguntas.
 
 **Resultados con los 79 eventos:**
 - **Pregunta 1.** Bates se acerca más al strike del mercado en el 62 % (vencimiento 1) y el 66 % (vencimiento 2) de los eventos. La diferencia es significativa en el vencimiento 2 (p = 0,0001; con corrección por comparaciones múltiples, 0,0004) y no en el 1 (p = 0,073). Se mantiene por año, sin el choque arancelario de abril de 2025, por horario del anuncio y quitando cada empresa.
@@ -37,6 +37,8 @@ En lenguaje claro: antes de un anuncio de resultados, el precio de las opciones 
 - **Movimiento realizado contra implícito:** el mercado cobró en promedio 6,9 % y la acción se movió 4,8 % (p = 0,0004).
 - **Validación fuera de muestra:** calibrando con la mitad de los strikes, Bates ajusta mejor los que no vio en el 83,5 % de los eventos (p < 0,001): su ventaja no es sobreajuste.
 - **Varianza forward y parámetro c:** el escalón que el anuncio deja en la varianza forward existe en todos los eventos y casi desaparece después; el reajuste de la varianza base tras el anuncio baja con los días, otra forma del crush gradual.
+- **Prima de varianza hasta el vencimiento:** en el 69 % a 70 % de los eventos el mercado cobró más varianza de la que se realizó.
+- **Misma receta en mercado y modelo:** la ventaja de Bates en el vencimiento 2 se mantiene al comparar ambos sobre los mismos strikes, con y sin extrapolación.
 - **Monte Carlo:** reproduce las fórmulas cerradas dentro de 0,2 % en promedio.
 
 **Límites:** 79 eventos de dos años y 10 empresas; los parámetros de reversión de Bates (κ y θ) no son identificables con vencimientos tan cortos, así que θ se fija; el beta del control es único para todas las empresas.

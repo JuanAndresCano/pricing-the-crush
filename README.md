@@ -20,6 +20,8 @@ Resultados (todos en `results/`, con la corrección de Holm sobre los 13 contras
 - **Movimiento realizado contra implícito.** El mercado cobró en promedio 6,9 % y la acción se movió 4,8 % (p = 0,0004).
 - **Validación fuera de muestra.** Con strikes que no vio en la calibración, Bates ajusta mejor en el 83,5 % de los eventos (p < 0,001) y su strike queda más cerca en el vencimiento 2 (p = 0,001).
 - **Varianza forward y parámetro c.** El escalón de la varianza forward del anuncio existe en todos los eventos y casi desaparece después (media 0,32 a 0,034). El reajuste c de la varianza base baja con los días (Merton: 1,02 el día 0 y 0,91 a +4 días), otra forma del crush gradual.
+- **Misma receta en mercado y modelo.** Comparando los dos con la misma integral sobre los mismos strikes, con y sin extrapolación, la conclusión de la Pregunta 1 no cambia.
+- **Prima de varianza hasta el vencimiento.** El strike del mercado supera a la varianza realizada en el 69 % a 70 % de los eventos; la media es positiva en el vencimiento 1 (0,082) y casi nula en el 2 (-0,010) por unos pocos movimientos grandes.
 - **Monte Carlo.** La simulación reproduce las fórmulas cerradas dentro de 0,2 % en promedio.
 
 Límites: 79 eventos de dos años y 10 empresas, con κ y θ de Bates no identificables con vencimientos tan cortos (θ se fija). Ver la sección de límites del informe y `docs/decisiones.md`.
@@ -46,8 +48,8 @@ src/crush/
   models/        black_scholes, merton, heston, bates, event, event_models, fourier
   calibration/   calibración por mínimos cuadrados ponderados por vega, selección, variantes de Bates
   simulation/    merton_mc, bates_qe, jumps, rv
-  analysis/      compare, crush, gradual, realized, multiple (Holm), robustness, placebo, beta_groups, oos, montecarlo
-scripts/         pipeline numerado (01 a 21), ver abajo
+  analysis/      same_recipe, vrp, forward_c, compare, crush, gradual, realized, multiple (Holm), robustness, placebo, beta_groups, oos, montecarlo
+scripts/         pipeline numerado (01 a 25), ver abajo
 events/          calendario de anuncios verificado (earnings_events.csv) y su LEEME
 docs/            teoría, decisiones, experimentos, resumen
 results/         tablas que sí se versionan
@@ -84,6 +86,10 @@ Experimentos de robustez (cada uno escribe en archivos propios y no cambia los r
 | `19_oos.py` | validación fuera de muestra |
 | `20_monte_carlo.py` | Monte Carlo sobre los eventos calibrados |
 | `21_forward_c.py` | varianza forward (escalón del anuncio) y parámetro c |
+| `22_same_recipe.py` | Pregunta 1 con la misma receta en mercado y modelo, con y sin extrapolación |
+| `23_mc_extra.py` | Monte Carlo: valor del swap tras el anuncio, crush con c, colas y variable de control |
+| `24_vrp.py` | prima de varianza hasta el vencimiento (pide cierres diarios con el Theta Terminal) |
+| `25_event_table.py` | tabla de resultados por evento (sección 7 de la teoría) |
 
 Los scripts `00_smoke_massive.py` y `06_smoke_real.py` son pruebas de acceso a las fuentes de datos. Detalle y hallazgos de cada experimento en `docs/experimentos.md`.
 
