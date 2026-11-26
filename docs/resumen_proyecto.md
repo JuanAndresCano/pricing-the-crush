@@ -29,7 +29,7 @@ En lenguaje claro: antes de un anuncio de resultados, el precio de las opciones 
 
 ## 4. Estado actual
 
-**Hecho y probado (208 pruebas automáticas):** motor de precios (Black-Scholes, Merton, Heston, Bates, factor de evento), calibración, descarga y limpieza de datos reales, simulación Monte Carlo, y todo el análisis de las dos preguntas.
+**Hecho y probado (214 pruebas automáticas):** motor de precios (Black-Scholes, Merton, Heston, Bates, factor de evento), calibración, descarga y limpieza de datos reales, simulación Monte Carlo, y todo el análisis de las dos preguntas.
 
 **Resultados con los 79 eventos:**
 - **Pregunta 1.** Bates se acerca más al strike del mercado en el 62 % (vencimiento 1) y el 66 % (vencimiento 2) de los eventos. La diferencia es significativa en el vencimiento 2 (p = 0,0001; con corrección por comparaciones múltiples, 0,0004) y no en el 1 (p = 0,073). Se mantiene por año, sin el choque arancelario de abril de 2025, por horario del anuncio y quitando cada empresa.
